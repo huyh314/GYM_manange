@@ -5,6 +5,7 @@ create table users (
   password_hash varchar not null,
   role          varchar(10) check (role in ('admin','pt','client')),
   notes         text,
+  avatar_url    varchar,
   is_active     boolean default true,
   created_at    timestamptz default now()
 );
@@ -44,3 +45,18 @@ create table sessions (
   notes           text,
   created_at      timestamptz default now()
 );
+
+create table weight_logs (
+  id          uuid default gen_random_uuid() primary key,
+  client_id   uuid references users(id),
+  weight_kg   decimal(5,1) not null,
+  recorded_at date not null default current_date,
+  note        text,
+  created_at  timestamptz default now()
+);
+
+-- Note: RLS needs to be enabled at project level or here for client role separation.
+-- Assuming basic tables for now, will keep policies simple.
+ALTER TABLE weight_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Client manages own weight" ON weight_logs
+  USING (client_id = auth.uid());
