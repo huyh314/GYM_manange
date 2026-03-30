@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Users, CalendarPlus, Menu, X, UserCog, BarChart3, Dumbbell, DollarSign, CalendarDays, Bell } from 'lucide-react';
+import { LayoutDashboard, Package, Users, CalendarPlus, Menu, X, UserCog, BarChart3, Dumbbell, DollarSign, CalendarDays, Bell, QrCode, Notebook } from 'lucide-react';
 import { useState } from 'react';
 import { LogoutButton } from '@/components/LogoutButton';
 import NotificationBell from '@/components/NotificationBell';
@@ -14,11 +14,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { label: 'Bảng số liệu', href: '/admin/dashboard', icon: LayoutDashboard },
     { label: 'Báo cáo', href: '/admin/reports', icon: BarChart3 },
+    { label: 'Điểm danh QR', href: '/admin/check-in', icon: QrCode },
     { label: 'Quản lý Người dùng', href: '/admin/users', icon: UserCog },
     { label: 'Danh Sách Gói', href: '/admin/packages', icon: Package },
     { label: 'Học Viên & Đăng ký', href: '/admin/assign-package', icon: Users },
     { label: 'Xếp lịch', href: '/admin/schedule', icon: CalendarPlus },
     { label: 'Buổi tập', href: '/admin/sessions', icon: CalendarDays },
+    { label: 'Giáo án mẫu', href: '/admin/routines', icon: Notebook },
     { label: 'Thư viện bài tập', href: '/admin/exercises', icon: Dumbbell },
     { label: 'Tính lương', href: '/admin/payroll', icon: DollarSign },
     { label: 'Thông báo', href: '/admin/notifications', icon: Bell },

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useNetworkStatus } from './useNetworkStatus';
-import { syncPendingCheckins } from '@/lib/offline/syncQueue';
+import { syncPendingCheckins, syncLogbookDrafts } from '@/lib/offline/syncQueue';
 
 export function useSyncOnReconnect() {
   const isOnline = useNetworkStatus();
@@ -10,6 +10,8 @@ export function useSyncOnReconnect() {
   useEffect(() => {
     if (isOnline) {
       syncPendingCheckins();
+      syncLogbookDrafts();
     }
   }, [isOnline]);
 }
+

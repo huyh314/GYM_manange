@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 export default function PackagesManagement() {
   const [packages, setPackages] = useState<any[]>([]);
@@ -14,13 +16,13 @@ export default function PackagesManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<any>(null);
   
-  // Form state
   const [formData, setFormData] = useState({
     name: '',
     total_sessions: '',
     price: '',
     description: '',
-    is_active: true
+    is_active: true,
+    tier: 'normal'
   });
 
   const fetchPackages = async () => {
@@ -49,7 +51,8 @@ export default function PackagesManagement() {
         total_sessions: pkg.total_sessions.toString(),
         price: pkg.price.toString(),
         description: pkg.description || '',
-        is_active: pkg.is_active
+        is_active: pkg.is_active,
+        tier: pkg.tier || 'normal'
       });
     } else {
       setEditingPackage(null);
@@ -58,7 +61,8 @@ export default function PackagesManagement() {
         total_sessions: '',
         price: '',
         description: '',
-        is_active: true
+        is_active: true,
+        tier: 'normal'
       });
     }
     setIsDialogOpen(true);
@@ -115,23 +119,32 @@ export default function PackagesManagement() {
         {isLoading ? (
           <p className="text-muted-foreground p-4">Đang tải dữ liệu...</p>
         ) : packages.map((pkg) => (
-          <Card key={pkg.id} className={!pkg.is_active ? 'opacity-60' : ''}>
+          <Card key={pkg.id} className={cn("relative overflow-hidden", !pkg.is_active && 'opacity-60')}>
+            {pkg.tier === 'vip' && <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden"><div className="bg-yellow-500 text-white text-[10px] font-bold py-1 px-4 text-center transform rotate-45 translate-x-[25px] translate-y-[10px] uppercase shadow-sm">VIP</div></div>}
+            {pkg.tier === 'premium' && <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden"><div className="bg-slate-900 text-white text-[9px] font-bold py-1 px-4 text-center transform rotate-45 translate-x-[25px] translate-y-[10px] uppercase shadow-sm">PREMIUM</div></div>}
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-xl">{pkg.name}</CardTitle>
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-xl">{pkg.name}</CardTitle>
+                <div className="flex gap-2 items-center">
+                  {pkg.tier === 'normal' && <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 uppercase tracking-wider">Thường</span>}
+                  {pkg.tier === 'vip' && <span className="text-[10px] font-semibold bg-yellow-50 text-yellow-600 px-1.5 py-0.5 rounded border border-yellow-200 uppercase tracking-wider">VIP</span>}
+                  {pkg.tier === 'premium' && <span className="text-[10px] font-semibold bg-gray-900 text-white px-1.5 py-0.5 rounded uppercase tracking-wider">Premium</span>}
+                </div>
+              </div>
               <div className="flex space-x-2">
-                <button onClick={() => handleOpenDialog(pkg)} className="text-gray-500 hover:text-blue-600 transition-colors">
-                  <Edit2 size={18} />
+                <button onClick={() => handleOpenDialog(pkg)} className="text-gray-500 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                  <Edit2 size={16} />
                 </button>
-                <button onClick={() => handleDelete(pkg.id)} className="text-gray-500 hover:text-red-600 transition-colors">
-                  <Trash2 size={18} />
+                <button onClick={() => handleDelete(pkg.id)} className="text-gray-500 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                  <Trash2 size={16} />
                 </button>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-1 text-sm text-gray-600">
-                <p><span className="font-medium">Số buổi:</span> {pkg.total_sessions}</p>
-                <p><span className="font-medium">Giá tiền:</span> {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price)}</p>
-                {pkg.description && <p className="italic text-xs mt-2 text-gray-500">{pkg.description}</p>}
+                <p><span className="font-medium text-gray-900">Số buổi:</span> {pkg.total_sessions}</p>
+                <p><span className="font-medium text-gray-900">Giá tiền:</span> <span className="text-primary font-bold">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price)}</span></p>
+                {pkg.description && <p className="italic text-xs mt-2 text-gray-500 line-clamp-2">{pkg.description}</p>}
                 {!pkg.is_active && <span className="inline-block mt-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Đã vô hiệu hóa</span>}
               </div>
             </CardContent>
@@ -148,6 +161,16 @@ export default function PackagesManagement() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Hạng gói</label>
+                  <Tabs value={formData.tier} onValueChange={(val: any) => setFormData({...formData, tier: val})}>
+                    <TabsList className="w-full bg-gray-100 p-1">
+                      <TabsTrigger value="normal" className="flex-1">Gói thường</TabsTrigger>
+                      <TabsTrigger value="vip" className="flex-1">Gói VIP</TabsTrigger>
+                      <TabsTrigger value="premium" className="flex-1">Gói Premium</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Tên gói</label>
                   <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="VD: Gói Giảm Cân 24 buổi" />

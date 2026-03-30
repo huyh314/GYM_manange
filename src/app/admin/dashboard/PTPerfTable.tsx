@@ -30,22 +30,21 @@ export default function PTPerfTable({ data }: { data: PTPerfData[] }) {
         <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 border-b font-medium">
           <tr>
             <th className="px-4 py-3 font-semibold">Tên PT</th>
-            <th className="px-4 py-3 font-semibold text-center group">
+            <th className="px-4 py-3 font-semibold text-center">
               <div className="flex items-center justify-center gap-1">
                  <CalendarCheck size={14} className="text-green-600" />
-                 <span>Ca đã dạy tháng này</span>
+                 <span>Ca dạy</span>
               </div>
             </th>
             <th className="px-4 py-3 font-semibold text-center">
               <div className="flex items-center justify-center gap-1">
                  <Users size={14} className="text-blue-600" />
-                 <span>Học viên đang phụ trách</span>
+                 <span>Học viên</span>
               </div>
             </th>
             <th className="px-4 py-3 font-semibold text-center">
               <div className="flex items-center justify-center gap-1">
-                 <Calendar size={14} className="text-amber-600" />
-                 <span>Buổi còn lịch tuần này</span>
+                 <span>Doanh thu (Ước tính)</span>
               </div>
             </th>
           </tr>
@@ -69,13 +68,14 @@ export default function PTPerfTable({ data }: { data: PTPerfData[] }) {
               <td className="px-4 py-3.5 text-center font-semibold text-gray-600">
                 {pt.active_clients}
               </td>
-              <td className="px-4 py-3.5 text-center font-semibold text-amber-600 text-sm">
-                {pt.upcoming_sessions > 0 ? pt.upcoming_sessions : '—'}
+              <td className="px-4 py-3.5 text-center font-bold text-emerald-600">
+                {new Intl.NumberFormat('vi-VN').format((pt as any).estimated_revenue || 0)}đ
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
     </div>
   );
 }

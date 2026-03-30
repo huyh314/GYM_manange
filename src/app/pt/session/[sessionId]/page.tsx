@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Save, CheckCircle, Plus, Trash2, Dumbbell, UserSquare2, ListTodo, Copy, ChevronUp, ChevronDown, WifiOff, AlertTriangle, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Save, CheckCircle, Plus, Trash2, Dumbbell, UserSquare2, ListTodo, Copy, ChevronUp, ChevronDown, WifiOff, AlertTriangle, RotateCcw, Notebook, ChevronRight, BookmarkPlus } from 'lucide-react';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ClientProfileTab from './ClientProfileTab';
 import ExercisePicker from '@/components/logbook/ExercisePicker';
@@ -31,6 +32,18 @@ export default function SessionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showRestore, setShowRestore] = useState(false);
   const [pendingDraft, setPendingDraft] = useState<any>(null);
+  
+  // Routine picker state
+  const [routines, setRoutines] = useState<any[]>([]);
+  const [isRoutinePickerOpen, setIsRoutinePickerOpen] = useState(false);
+  const [loadingRoutines, setLoadingRoutines] = useState(false);
+  
+  // Save as Routine state
+  const [isSaveRoutineModalOpen, setIsSaveRoutineModalOpen] = useState(false);
+  const [newRoutineName, setNewRoutineName] = useState('');
+  const [newRoutineDesc, setNewRoutineDesc] = useState('');
+  const [isSavingRoutine, setIsSavingRoutine] = useState(false);
+
   
   useEffect(() => {
     fetch('/api/pt/sessions')
@@ -225,6 +238,90 @@ export default function SessionDetailPage() {
     }
   };
 
+  const openRoutinePicker = async () => {
+    setIsRoutinePickerOpen(true);
+    setLoadingRoutines(true);
+    try {
+      const res = await fetch('/api/admin/routines');
+      if (res.ok) {
+         setRoutines(await res.json());
+      }
+    } catch(err) {
+      toast.error('Không thể tải giáo án mẫu');
+    }
+    setLoadingRoutines(false);
+  };
+
+  const applyRoutine = async (routineId: string) => {
+    try {
+      const res = await fetch(`/api/admin/routines/${routineId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+           if (logbook.length > 0 && !confirm('Sử dụng giáo án này sẽ ghi đè lên logbook hiện tại của bạn. Tiếp tục?')) {
+             return;
+           }
+           
+           const newLogbook: LogbookEntry[] = data.items.map((item: any) => ({
+             exercise: item.exercise?.name || 'Unknown',
+             sets: Array.from({ length: item.sets || 3 }).map(() => ({
+               reps: item.reps || '12',
+               kg: ''
+             }))
+           }));
+           
+           setLogbook(newLogbook);
+           toast.success(`Đã áp dụng giáo án: ${data.name}`);
+           setIsRoutinePickerOpen(false);
+        } else {
+           toast.error('Giáo án này chưa có bài tập nào.');
+        }
+      }
+    } catch(err) {
+      toast.error('Lỗi khi áp dụng giáo án');
+    }
+  };
+  
+  const handleSaveToRoutine = async () => {
+    if (!newRoutineName.trim()) {
+      toast.error('Vui lòng nhập tên giáo án');
+      return;
+    }
+    
+    if (logbook.length === 0) {
+      toast.error('Chưa có bài tập nào để lưu');
+      return;
+    }
+
+    setIsSavingRoutine(true);
+    try {
+      const res = await fetch('/api/pt/routines/save-from-logbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newRoutineName,
+          description: newRoutineDesc,
+          created_by: session.pt_id,
+          logbook: logbook
+        })
+      });
+
+      if (res.ok) {
+        toast.success('Đã lưu giáo án mẫu thành công!');
+        setIsSaveRoutineModalOpen(false);
+        setNewRoutineName('');
+        setNewRoutineDesc('');
+      } else {
+        const err = await res.json();
+        toast.error('Lỗi khi lưu giáo án: ' + err.error);
+      }
+    } catch (err) {
+      toast.error('Lỗi kết nối máy chủ');
+    }
+    setIsSavingRoutine(false);
+  };
+
+
   if (loading) return <div className="p-6 text-center text-gray-500 animate-pulse">Đang tải chi tiết buổi tập...</div>;
   if (!session) return <div className="p-6 text-center text-gray-500">Không tìm thấy buổi tập.</div>;
 
@@ -295,16 +392,26 @@ export default function SessionDetailPage() {
                <Dumbbell className="w-5 h-5 mr-2 text-indigo-500" />
                Logbook
              </h3>
-             {!isDone && (
-               <div className="flex gap-2">
-                 <Button onClick={copyFromPrevious} size="sm" variant="outline" className="h-8 text-xs font-bold text-violet-600 border-violet-200 hover:bg-violet-50">
-                   <Copy className="w-3 h-3 mr-1" /> Từ buổi trước
-                 </Button>
-                 <Button onClick={addExercise} size="sm" variant="outline" className="h-8 text-xs font-bold text-indigo-600 border-indigo-200 hover:bg-indigo-50">
-                   <Plus className="w-3 h-3 mr-1" /> Thêm bài
-                 </Button>
-               </div>
-             )}
+              {!isDone && (
+                <div className="flex flex-wrap gap-2 justify-end">
+                  <Button onClick={openRoutinePicker} size="sm" variant="outline" className="h-8 text-xs font-bold text-indigo-600 border-indigo-200 hover:bg-indigo-50">
+                    <Notebook size={14} className="mr-1" /> Giáo án mẫu
+                  </Button>
+                  <Button onClick={copyFromPrevious} size="sm" variant="outline" className="h-8 text-xs font-bold text-violet-600 border-violet-200 hover:bg-violet-50">
+                    <Copy className="w-3 h-3 mr-1" /> Từ buổi trước
+                  </Button>
+                  <Button onClick={addExercise} size="sm" variant="outline" className="h-8 text-xs font-bold text-emerald-600 border-emerald-200 hover:bg-emerald-50">
+                    <Plus className="w-3 h-3 mr-1" /> Thêm bài
+                  </Button>
+                  <Button onClick={() => {
+                    setNewRoutineName(`${session.client?.name || 'Học viên'} - ${new Date().toLocaleDateString('vi-VN')}`);
+                    setIsSaveRoutineModalOpen(true);
+                  }} size="sm" variant="outline" className="h-8 text-xs font-bold text-amber-600 border-amber-200 hover:bg-amber-50">
+                    <BookmarkPlus size={14} className="mr-1" /> Lưu giáo án
+                  </Button>
+                </div>
+
+              )}
           </div>
 
           {logbook.length === 0 && !isDone && (
@@ -432,6 +539,82 @@ export default function SessionDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Routine Picker Modal */}
+      {isRoutinePickerOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+           <Card className="w-full max-w-sm bg-white shadow-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-300">
+              <CardHeader className="pb-4 border-b bg-gray-50 flex flex-row items-center justify-between">
+                 <CardTitle className="text-lg font-black">Chọn giáo án mẫu</CardTitle>
+                 <Button variant="ghost" size="icon" className="rounded-full" onClick={() => setIsRoutinePickerOpen(false)}>
+                    <Plus className="rotate-45" />
+                 </Button>
+              </CardHeader>
+              <CardContent className="p-0 max-h-[60vh] overflow-y-auto">
+                 {loadingRoutines ? (
+                    <div className="p-8 text-center text-gray-400 font-bold animate-pulse">Đang tải giáo án...</div>
+                 ) : routines.length === 0 ? (
+                    <div className="p-8 text-center text-gray-400">Không có giáo án mẫu nào.</div>
+                 ) : (
+                    <div className="divide-y">
+                       {routines.map(r => (
+                          <button 
+                            key={r.id} 
+                            className="w-full text-left p-4 hover:bg-indigo-50 transition-colors group flex items-center justify-between"
+                            onClick={() => applyRoutine(r.id)}
+                          >
+                             <div>
+                                <p className="font-black text-gray-900 group-hover:text-indigo-700">{r.name}</p>
+                                <p className="text-xs text-gray-500 line-clamp-1">{r.description || 'Không có mô tả'}</p>
+                             </div>
+                             <ChevronRight size={16} className="text-gray-300 group-hover:text-indigo-500" />
+                          </button>
+                       ))}
+                    </div>
+                 )}
+              </CardContent>
+           </Card>
+        </div>
+      )}
+      {/* Save Routine Modal */}
+      {isSaveRoutineModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+           <Card className="w-full max-w-sm bg-white shadow-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-300">
+              <CardHeader className="pb-4 border-b bg-amber-50">
+                 <CardTitle className="text-lg font-black text-amber-900">Lưu thành giáo án mẫu</CardTitle>
+                 <p className="text-xs text-amber-700 font-medium">Lưu danh sách bài tập hiện tại để dùng lại cho các buổi tập khác.</p>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                 <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Tên giáo án</label>
+                    <Input 
+                      placeholder="Ví dụ: Lịch tập Ngực - Vai (Nâng cao)" 
+                      value={newRoutineName}
+                      onChange={(e) => setNewRoutineName(e.target.value)}
+                      className="font-bold text-gray-900"
+                    />
+                 </div>
+                 <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Mô tả (Không bắt buộc)</label>
+                    <textarea 
+                      placeholder="Ghi chú về mục tiêu của giáo án này..."
+                      className="w-full min-h-[80px] rounded-xl border border-input bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 font-medium resize-none"
+                      value={newRoutineDesc}
+                      onChange={(e) => setNewRoutineDesc(e.target.value)}
+                    />
+                 </div>
+                 <div className="flex gap-2 pt-2">
+                    <Button variant="ghost" className="flex-1 font-bold" onClick={() => setIsSaveRoutineModalOpen(false)}>Hủy</Button>
+                    <Button className="flex-1 bg-amber-600 hover:bg-amber-700 font-bold" onClick={handleSaveToRoutine} disabled={isSavingRoutine}>
+                       {isSavingRoutine ? 'Đang lưu...' : 'Lưu mẫu'}
+                    </Button>
+                 </div>
+              </CardContent>
+           </Card>
+        </div>
+      )}
     </div>
+
   );
 }
+

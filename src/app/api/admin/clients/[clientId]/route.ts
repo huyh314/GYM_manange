@@ -22,7 +22,7 @@ export async function GET(
     // 1. Fetch user data (basic info + notes)
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('id, name, phone, role, is_active, notes, created_at')
+      .select('id, name, phone, role, is_active, notes, created_at, height_cm, target_weight')
       .eq('id', clientId)
       .single();
 
@@ -67,7 +67,7 @@ export async function GET(
     // 5. Fetch Weight logs
     const { data: weights } = await supabase
       .from('weight_logs')
-      .select('id, weight_kg, log_date, notes')
+      .select('id, weight_kg, log_date, notes, body_fat_pct, muscle_mass_pct')
       .eq('client_id', clientId)
       .order('log_date', { ascending: true });
 

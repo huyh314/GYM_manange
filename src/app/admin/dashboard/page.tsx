@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  TrendingUp, CalendarCheck, AlertTriangle, UserCheck,
-  Clock, CheckCircle2, XCircle, Calendar
+  Clock, CheckCircle2, XCircle, Calendar, Users, Percent, TrendingUp, CalendarCheck, UserCheck, AlertTriangle
 } from 'lucide-react';
+
+
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import dynamic from 'next/dynamic';
@@ -28,7 +29,14 @@ interface DashboardStats {
   lowSessionClients: any[];
   weeklyRevenue: any[];
   ptPerformance: any[];
+  avgSessionPrice: number;
+  retentionRate: number;
+  trends: {
+    sessions: number;
+    revenue: number;
+  }
 }
+
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -46,44 +54,46 @@ export default function AdminDashboard() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const metricCards = stats ? [
+   const metricCards = stats ? [
     {
       title: 'Doanh thu tháng (ước tính)',
       value: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.revenueEstimate),
       sub: `${stats.monthlyCompletedCount} ca hoàn thành`,
+      trend: stats.trends.revenue,
       icon: TrendingUp,
       color: 'text-emerald-600',
       bg: 'bg-emerald-50',
       border: 'border-t-emerald-500',
     },
     {
-      title: 'Lịch tập hôm nay',
-      value: stats.sessionsTodayCount,
-      sub: `${format(new Date(), 'EEEE, dd/MM', { locale: vi })}`,
-      icon: CalendarCheck,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
-      border: 'border-t-blue-500',
+      title: 'Tỷ lệ duy trì',
+      value: `${stats.retentionRate}%`,
+      sub: 'Học viên đang hoạt động',
+      icon: Percent,
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
+      border: 'border-t-indigo-500',
     },
     {
       title: 'HLV đang hoạt động',
       value: `${stats.activePtCount}/${stats.totalPtCount}`,
-      sub: 'Có lịch hôm nay',
+      sub: 'Có lịch dạy ngày hôm nay',
       icon: UserCheck,
       color: 'text-violet-600',
       bg: 'bg-violet-50',
       border: 'border-t-violet-500',
     },
     {
-      title: 'Học viên sắp hết buổi',
+      title: 'Sắp hết buổi tập',
       value: stats.lowSessionAlerts,
-      sub: 'Còn ≤ 3 buổi',
+      sub: 'Học viên còn ≤ 3 buổi',
       icon: AlertTriangle,
       color: stats.lowSessionAlerts > 0 ? 'text-amber-600' : 'text-gray-400',
       bg: stats.lowSessionAlerts > 0 ? 'bg-amber-50' : 'bg-gray-50',
       border: stats.lowSessionAlerts > 0 ? 'border-t-amber-500' : 'border-t-gray-300',
     },
   ] : [];
+
 
   const getStatusBadge = (status: string) => {
     if (status === 'done') return (
@@ -140,8 +150,15 @@ export default function AdminDashboard() {
                       <Icon className={`${card.color} w-5 h-5`} />
                     </div>
                   </div>
-                  <div className={`text-3xl font-black ${card.color} leading-none mb-1`}>{card.value}</div>
-                  <div className="text-xs text-gray-400 font-medium mt-1">{card.sub}</div>
+                  <div className={`text-3xl font-black ${card.color} leading-none mb-1 text-center`}>{card.value}</div>
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{card.sub}</div>
+                    {card.trend !== undefined && (
+                      <div className={`text-[10px] font-black flex items-center ${card.trend > 0 ? 'text-emerald-500' : card.trend < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                        {card.trend > 0 ? '↑' : card.trend < 0 ? '↓' : ''} {Math.abs(card.trend)}% MoM
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );

@@ -18,12 +18,12 @@ export async function POST(req: NextRequest) {
       .from('users')
       .select('id, name, phone, password_hash, role, is_active')
       .eq('phone', phone)
-      .single();
+      .maybeSingle(); // Switch to maybeSingle to handle null results gracefully
 
     if (error) {
        console.error('Supabase query error:', error);
        return NextResponse.json(
-         { error: `Lỗi kết nối cơ sở dữ liệu: ${error.message}` },
+         { error: `Lỗi hệ thống: ${error.message}` },
          { status: 500 }
        );
     }

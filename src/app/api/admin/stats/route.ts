@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
-import { startOfMonth, endOfMonth, startOfDay, endOfDay } from 'date-fns';
+import { startOfMonth, endOfMonth, startOfDay, endOfDay, subMonths } from 'date-fns';
+
 
 export async function GET() {
   try {
@@ -8,8 +9,13 @@ export async function GET() {
     const now = new Date();
     const todayStart = startOfDay(now).toISOString();
     const todayEnd = endOfDay(now).toISOString();
-    const monthStart = startOfMonth(now).toISOString();
+     const monthStart = startOfMonth(now).toISOString();
     const monthEnd = endOfMonth(now).toISOString();
+    
+    const lastMonthNow = subMonths(now, 1);
+    const lastMonthStart = startOfMonth(lastMonthNow).toISOString();
+    const lastMonthEnd = endOfMonth(lastMonthNow).toISOString();
+
 
     // 1. Sessions today (all statuses)
     const { data: todaySessions } = await supabase
@@ -28,9 +34,41 @@ export async function GET() {
       .gte('checked_in_at', monthStart)
       .lte('checked_in_at', monthEnd);
 
-    const monthlyCompletedCount = monthSessions?.length ?? 0;
-    // Estimate 150k/session as default rate
-    const revenueEstimate = monthlyCompletedCount * 150000;
+     const monthlyCompletedCount = monthSessions?.length ?? 0;
+    
+    // 2.1 Calculate actual average session price from all packages
+    const { data: allPackages } = await supabase
+      .from('user_packages')
+      .select('amount_paid, total_sessions');
+    
+    let totalPaid = 0;
+    let totalSessionsAll = 0;
+    allPackages?.forEach(p => {
+      totalPaid += (p.amount_paid || 0);
+      totalSessionsAll += (p.total_sessions || 0);
+    });
+    const avgSessionPrice = totalSessionsAll > 0 ? Math.round(totalPaid / totalSessionsAll) : 150000;
+    
+    const revenueEstimate = monthlyCompletedCount * avgSessionPrice;
+
+    // 2.2 Last month stats for MoM comparison
+    const { data: lastMonthSessions } = await supabase
+      .from('sessions')
+      .select('id')
+      .eq('status', 'done')
+      .gte('checked_in_at', lastMonthStart)
+      .lte('checked_in_at', lastMonthEnd);
+    
+    const lastMonthCompletedCount = lastMonthSessions?.length ?? 0;
+    const lastMonthRevenueEstimate = lastMonthCompletedCount * avgSessionPrice;
+    
+    const sessionTrend = lastMonthCompletedCount > 0 
+      ? Math.round(((monthlyCompletedCount - lastMonthCompletedCount) / lastMonthCompletedCount) * 100) 
+      : 0;
+    const revenueTrend = lastMonthRevenueEstimate > 0 
+      ? Math.round(((revenueEstimate - lastMonthRevenueEstimate) / lastMonthRevenueEstimate) * 100) 
+      : 0;
+
 
     // 3. Clients with low sessions (remaining_sessions <= 3)
     const { data: lowSessionPackages } = await supabase
@@ -134,14 +172,31 @@ export async function GET() {
         activeUserPackages?.filter(p => p.pt_id === pt.id).map(p => p.client_id) || []
       );
 
-      return {
+       return {
         id: pt.id,
         name: pt.name,
         sessions_this_month: thisMonthSessionsCount,
         active_clients: activeClientsSet.size,
-        upcoming_sessions: upcomingSessionsCount
+        upcoming_sessions: upcomingSessionsCount,
+        estimated_revenue: thisMonthSessionsCount * avgSessionPrice
       };
     }).sort((a, b) => b.sessions_this_month - a.sessions_this_month) || [];
+
+    // 8. Retention Rate
+    // (Active clients with active packages) / (Total unique clients who ever bought a package)
+    const { data: uniqueClients } = await supabase
+      .from('user_packages')
+      .select('client_id');
+    
+    const totalClientsEver = new Set(uniqueClients?.map(c => c.client_id) || []).size;
+    const { data: activePackages } = await supabase
+      .from('user_packages')
+      .select('client_id')
+      .eq('status', 'active');
+    
+    const activeClientsCount = new Set(activePackages?.map(c => c.client_id) || []).size;
+    const retentionRate = totalClientsEver > 0 ? Math.round((activeClientsCount / totalClientsEver) * 100) : 0;
+
 
     return NextResponse.json({
       sessionsTodayCount,
@@ -152,8 +207,14 @@ export async function GET() {
       monthlyCompletedCount,
       todaySchedule: scheduleDetails || [],
       lowSessionClients: lowSessionPackages || [],
-      weeklyRevenue,
+       weeklyRevenue,
       ptPerformance,
+      avgSessionPrice,
+      retentionRate,
+      trends: {
+        sessions: sessionTrend,
+        revenue: revenueTrend
+      }
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

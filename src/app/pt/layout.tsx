@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Calendar, Wallet, LogOut } from 'lucide-react';
+import { Calendar, Wallet, LogOut, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSyncOnReconnect } from '@/hooks/useSyncOnReconnect';
 
@@ -15,6 +15,7 @@ export default function PTLayout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { label: 'Hôm nay', href: '/pt/today', icon: Calendar },
+    { label: 'Học viên', href: '/pt/clients', icon: Users },
     { label: 'Ca dạy', href: '/pt/stats', icon: Wallet },
   ];
 

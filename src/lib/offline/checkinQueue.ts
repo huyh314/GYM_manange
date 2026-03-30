@@ -87,3 +87,10 @@ export async function clearLogbookDraft(sessionId: string) {
   if (!db) return;
   await db.delete('logbook_drafts', sessionId);
 }
+
+export async function getAllLogbookDrafts() {
+  const db = await getDB();
+  if (!db) return [];
+  return db.getAll('logbook_drafts');
+}
+

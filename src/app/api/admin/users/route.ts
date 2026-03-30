@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const supabase = createSupabaseAdminClient();
     const role = req.nextUrl.searchParams.get('role');
     
-    let query = supabase.from('users').select('id, name, phone, role').order('name');
+    let query = supabase.from('users').select('id, name, phone, role, rate_per_session').order('name');
     if (role) {
       query = query.eq('role', role);
     }
@@ -35,9 +35,10 @@ export async function POST(req: NextRequest) {
         name: body.name,
         phone: body.phone,
         password_hash: passwordHash,
-        role: body.role || 'client'
+        role: body.role || 'client',
+        rate_per_session: body.rate_per_session || 0
       }])
-      .select('id, name, phone, role')
+      .select('id, name, phone, role, rate_per_session')
       .single();
 
     if (error) throw error;
@@ -46,3 +47,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const supabase = createSupabaseAdminClient();
+    const body = await req.json();
+    const { id, ...updates } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+
+    // Hash password if it's being updated
+    if (updates.password) {
+      updates.password_hash = await hashPassword(updates.password);
+      delete updates.password;
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', id)
+      .select('id, name, phone, role, rate_per_session')
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json(data);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+

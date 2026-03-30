@@ -15,6 +15,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         price: parseInt(body.price),
         description: body.description,
         is_active: body.is_active,
+        tier: body.tier || 'normal',
       })
       .eq('id', id)
       .select()

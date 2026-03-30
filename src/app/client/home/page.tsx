@@ -1,14 +1,32 @@
 import { ProgressRing } from './ProgressRing';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Clock, BarChart3, User, CalendarDays, TrendingUp } from 'lucide-react';
+import { Calendar, Clock, BarChart3, User, CalendarDays, TrendingUp, QrCode } from 'lucide-react';
 import { format, isFuture, startOfWeek, startOfMonth } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { QRCheckInModal } from '@/components/QRCheckInModal';
+import { Button } from '@/components/ui/button';
+
+import { verifyToken } from '@/lib/auth';
+import { cookies } from 'next/headers';
 
 export default async function ClientHomePage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
+  if (!token) return null;
+
+  const payload = await verifyToken(token);
+  if (!payload) return null;
+
+  const userId = payload.id;
   const supabase = await createSupabaseServerClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+
+  // 0. Fetch User Profile
+  const { data: profile } = await supabase
+    .from('users')
+    .select('id, name, phone')
+    .eq('id', userId)
+    .single();
 
   // 1. Fetch Active Packages
   const { data: activePackages } = await supabase
@@ -88,6 +106,24 @@ export default async function ClientHomePage() {
               <p className="text-gray-400 text-sm mt-1">Liên hệ với PT để được tư vấn.</p>
             </div>
           )}
+
+          {/* Quick Check-in Button */}
+          {profile && (
+            <div className="mt-8 w-full px-4">
+              <QRCheckInModal 
+                user={profile} 
+                trigger={
+                  <Button className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-lg shadow-indigo-100 flex items-center justify-center gap-3">
+                    <QrCode size={24} strokeWidth={2.5} />
+                    CHECK-IN NGAY
+                  </Button>
+                }
+              />
+              <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-3">
+                Quét mã để điểm danh tại quầy
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -133,7 +169,7 @@ export default async function ClientHomePage() {
 
       {/* 1c. Stats Row */}
       <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 px-1 mt-8">Tổng quan hoạt động</h3>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 pb-8">
         <Card className="bg-white shadow-sm border-0 border-t-2 border-green-500">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-black text-gray-800">{totalCompleted}</div>

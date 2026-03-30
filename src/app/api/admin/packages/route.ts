@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
           price: parseInt(body.price),
           description: body.description,
           is_active: body.is_active ?? true,
+          tier: body.tier || 'normal',
         }
       ])
       .select()
