@@ -4,10 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Calendar, Wallet, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSyncOnReconnect } from '@/hooks/useSyncOnReconnect';
 
 export default function PTLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  // Kích hoạt đồng bộ ngầm khi online trở lại
+  useSyncOnReconnect();
 
   const navItems = [
     { label: 'Hôm nay', href: '/pt/today', icon: Calendar },

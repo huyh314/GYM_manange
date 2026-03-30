@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Users, CalendarPlus, Menu, X, UserCog, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Package, Users, CalendarPlus, Menu, X, UserCog, BarChart3, Dumbbell, DollarSign, CalendarDays, Bell } from 'lucide-react';
 import { useState } from 'react';
 import { LogoutButton } from '@/components/LogoutButton';
 import NotificationBell from '@/components/NotificationBell';
@@ -18,6 +18,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Danh Sách Gói', href: '/admin/packages', icon: Package },
     { label: 'Học Viên & Đăng ký', href: '/admin/assign-package', icon: Users },
     { label: 'Xếp lịch', href: '/admin/schedule', icon: CalendarPlus },
+    { label: 'Buổi tập', href: '/admin/sessions', icon: CalendarDays },
+    { label: 'Thư viện bài tập', href: '/admin/exercises', icon: Dumbbell },
+    { label: 'Tính lương', href: '/admin/payroll', icon: DollarSign },
+    { label: 'Thông báo', href: '/admin/notifications', icon: Bell },
   ];
 
   const NavContent = () => (
@@ -28,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link
               key={item.href}

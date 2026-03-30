@@ -5,18 +5,22 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Save, CheckCircle, Plus, Trash2, Dumbbell, UserSquare2, ListTodo } from 'lucide-react';
+import { ArrowLeft, Save, CheckCircle, Plus, Trash2, Dumbbell, UserSquare2, ListTodo, Copy, ChevronUp, ChevronDown, WifiOff, AlertTriangle, RotateCcw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ClientProfileTab from './ClientProfileTab';
-
-type LogbookSet = { reps: number | string; kg: number | string };
-type LogbookEntry = { exercise: string; sets: LogbookSet[] };
+import ExercisePicker from '@/components/logbook/ExercisePicker';
+import { LogbookEntry } from '@/lib/types';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { queueCheckin, saveLogbookDraft, getLogbookDraft, clearLogbookDraft } from '@/lib/offline/checkinQueue';
+import { toast } from 'sonner';
 
 export default function SessionDetailPage() {
-  const { sessionId } = useParams();
+  const { sessionId } = useParams() as { sessionId: string };
+  const isOnline = useNetworkStatus();
   const router = useRouter();
   
   const [session, setSession] = useState<any>(null);
+  const [allSessions, setAllSessions] = useState<any[]>([]);
   
   // Structured logbook
   const [logbook, setLogbook] = useState<LogbookEntry[]>([]);
@@ -25,22 +29,38 @@ export default function SessionDetailPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showRestore, setShowRestore] = useState(false);
+  const [pendingDraft, setPendingDraft] = useState<any>(null);
   
   useEffect(() => {
     fetch('/api/pt/sessions')
       .then(res => res.json())
       .then((data: any[]) => {
+        setAllSessions(data);
         const current = data.find(s => s.id === sessionId);
         if (current) {
           setSession(current);
           if (Array.isArray(current.logbook)) {
             setLogbook(current.logbook);
           } else if (current.logbook && current.logbook.exercises) {
-             // Fallback if old format
              setNotes(current.logbook.exercises + '\n' + (current.notes || ''));
           }
           if (current.notes) setNotes(current.notes);
           setIsDone(current.status === 'done' || current.status === 'completed');
+
+          // Check for local draft after loading from server
+          getLogbookDraft(sessionId).then(draft => {
+            if (draft && draft.logbook.length > 0) {
+              const draftTime = new Date(draft.savedAt).toLocaleTimeString();
+              const serverTime = current.updated_at ? new Date(current.updated_at) : new Date(0);
+              
+              // Only show restore if draft is newer than server data
+              if (new Date(draft.savedAt) > serverTime) {
+                setPendingDraft(draft);
+                setShowRestore(true);
+              }
+            }
+          });
         }
         setLoading(false);
       });
@@ -49,19 +69,25 @@ export default function SessionDetailPage() {
   const saveLogbook = async () => {
     if (isDone) return;
     setIsSaving(true);
-    try {
-      await fetch(`/api/pt/sessions/${sessionId}/logbook`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ logbook, notes })
-      });
-    } catch(err) {
-      console.error(err);
+    
+    // Always save to local draft first
+    await saveLogbookDraft(sessionId, logbook, notes);
+
+    if (isOnline) {
+      try {
+        await fetch(`/api/pt/sessions/${sessionId}/logbook`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ logbook, notes })
+        });
+      } catch(err) {
+        console.error('Failed to save to server, staying in local.', err);
+      }
     }
     setIsSaving(false);
   };
 
-  // Implement autosave 30s
+  // Autosave 30s
   useEffect(() => {
     if (!session || isDone || loading) return;
     const interval = setInterval(() => {
@@ -75,6 +101,15 @@ export default function SessionDetailPage() {
     
     await saveLogbook();
 
+    if (!isOnline) {
+      await queueCheckin({ sessionId, logbook, notes });
+      await clearLogbookDraft(sessionId);
+      toast.info('📥 Đang offline. Check-in đã được lưu vào hàng chờ và sẽ đồng bộ khi có mạng.');
+      setIsDone(true);
+      router.push('/pt/today');
+      return;
+    }
+
     try {
       const res = await fetch(`/api/pt/sessions/${sessionId}/check-in`, {
         method: 'POST',
@@ -82,16 +117,27 @@ export default function SessionDetailPage() {
         body: JSON.stringify({ logbook, notes })
       });
       if (res.ok) {
+        await clearLogbookDraft(sessionId);
         setIsDone(true);
-        alert('Điểm danh thành công!');
+        toast.success('Điểm danh thành công!');
         router.push('/pt/today');
       } else {
         const err = await res.json();
-        alert('Lỗi: ' + err.error);
+        toast.error('Lỗi: ' + err.error);
       }
     } catch(err) {
       console.error(err);
+      toast.error('Lỗi kết nối mạng.');
     }
+  };
+
+  const restoreDraft = () => {
+    if (pendingDraft) {
+      setLogbook(pendingDraft.logbook);
+      setNotes(pendingDraft.notes);
+      toast.success('Đã khôi phục bản nháp buổi tập.');
+    }
+    setShowRestore(false);
   };
 
   const addExercise = () => {
@@ -128,6 +174,57 @@ export default function SessionDetailPage() {
     setLogbook(newLogbook);
   };
 
+  // Move exercise up/down
+  const moveExercise = (index: number, direction: 'up' | 'down') => {
+    const newLogbook = [...logbook];
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= newLogbook.length) return;
+    [newLogbook[index], newLogbook[target]] = [newLogbook[target], newLogbook[index]];
+    setLogbook(newLogbook);
+  };
+
+  // Copy from previous session
+  const copyFromPrevious = () => {
+    if (!session) return;
+    
+    // Find the previous completed session for the same client
+    const previousSessions = allSessions
+      .filter(s => 
+        s.client_id === session.client_id && 
+        s.id !== session.id &&
+        (s.status === 'done' || s.status === 'completed') &&
+        Array.isArray(s.logbook) && s.logbook.length > 0
+      )
+      .sort((a, b) => new Date(b.checked_in_at || b.scheduled_at).getTime() - new Date(a.checked_in_at || a.scheduled_at).getTime());
+
+    const prev = previousSessions[0];
+    if (!prev) {
+      alert('Không tìm thấy logbook buổi trước của học viên này.');
+      return;
+    }
+
+    if (!confirm('Copy danh sách bài tập từ buổi trước? (Giữ tên bài + số reps, xoá số kg để bạn điền mới)')) return;
+
+    // Copy exercises but clear kg values
+    const copied: LogbookEntry[] = prev.logbook.map((entry: LogbookEntry) => ({
+      exercise: entry.exercise,
+      sets: entry.sets.map(set => ({
+        reps: set.reps,
+        kg: '', // Clear kg so PT fills in new values
+      })),
+    }));
+
+    setLogbook(copied);
+  };
+
+  // Quick add set on Enter
+  const handleSetKeyDown = (e: React.KeyboardEvent, eIndex: number, sIndex: number) => {
+    if (e.key === 'Enter' && sIndex === logbook[eIndex].sets.length - 1) {
+      e.preventDefault();
+      addSet(eIndex);
+    }
+  };
+
   if (loading) return <div className="p-6 text-center text-gray-500 animate-pulse">Đang tải chi tiết buổi tập...</div>;
   if (!session) return <div className="p-6 text-center text-gray-500">Không tìm thấy buổi tập.</div>;
 
@@ -138,8 +235,34 @@ export default function SessionDetailPage() {
           <ArrowLeft size={20} />
         </button>
         <h2 className="text-xl font-black text-gray-900 flex-1 tracking-tight">Chi tiết Buổi tập</h2>
-        {isSaving && <span className="text-xs font-bold text-gray-400 bg-gray-50 border border-gray-100 px-2 py-1 rounded-full shadow-sm">Đang lưu..</span>}
+        {isSaving && <span className="text-xs font-bold text-indigo-500 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-full shadow-sm animate-pulse">Đang lưu..</span>}
+        {!isOnline && <span className="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-100 px-2 py-1 rounded-full shadow-sm flex items-center"><WifiOff size={12} className="mr-1" /> Offline</span>}
       </div>
+
+      {!isOnline && !isDone && (
+        <div className="bg-amber-100 border border-amber-200 p-3 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
+          <AlertTriangle className="text-amber-600 w-5 h-5 shrink-0" />
+          <p className="text-xs font-bold text-amber-800">Bạn đang ngoại tuyến. Dữ liệu tập luyện đang được lưu vào bộ nhớ máy và sẽ tự động đồng bộ khi có mạng.</p>
+        </div>
+      )}
+
+      {showRestore && (
+        <div className="bg-indigo-600 p-4 rounded-2xl shadow-xl flex items-center justify-between gap-4 animate-in zoom-in-95 duration-300">
+          <div className="flex gap-3 items-center">
+            <div className="bg-white/20 p-2 rounded-xl">
+              <RotateCcw className="text-white w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-white text-sm font-bold">Tìm thấy bản nháp buổi tập!</p>
+              <p className="text-white/70 text-[10px] font-medium uppercase tracking-wider">Lưu lúc {new Date(pendingDraft?.savedAt).toLocaleTimeString()}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+             <Button size="sm" variant="ghost" className="text-white hover:bg-white/10 font-bold" onClick={() => setShowRestore(false)}>Bỏ qua</Button>
+             <Button size="sm" className="bg-white text-indigo-600 hover:bg-white/90 font-bold shadow-sm" onClick={restoreDraft}>Khôi phục</Button>
+          </div>
+        </div>
+      )}
 
       <Card className={`${isDone ? 'bg-green-50/50 border-green-100' : 'bg-white shadow-sm'}`}>
         <CardContent className="p-4 space-y-2">
@@ -173,15 +296,21 @@ export default function SessionDetailPage() {
                Logbook
              </h3>
              {!isDone && (
-               <Button onClick={addExercise} size="sm" variant="outline" className="h-8 text-xs font-bold text-indigo-600 border-indigo-200 hover:bg-indigo-50">
-                 <Plus className="w-3 h-3 mr-1" /> Thêm bài
-               </Button>
+               <div className="flex gap-2">
+                 <Button onClick={copyFromPrevious} size="sm" variant="outline" className="h-8 text-xs font-bold text-violet-600 border-violet-200 hover:bg-violet-50">
+                   <Copy className="w-3 h-3 mr-1" /> Từ buổi trước
+                 </Button>
+                 <Button onClick={addExercise} size="sm" variant="outline" className="h-8 text-xs font-bold text-indigo-600 border-indigo-200 hover:bg-indigo-50">
+                   <Plus className="w-3 h-3 mr-1" /> Thêm bài
+                 </Button>
+               </div>
              )}
           </div>
 
           {logbook.length === 0 && !isDone && (
             <div className="text-center py-6 bg-gray-50 border border-dashed rounded-xl">
                <p className="text-sm text-gray-500 font-medium">Chưa có bài tập nào.</p>
+               <p className="text-xs text-gray-400 mt-1">Bấm &quot;Thêm bài&quot; hoặc &quot;Từ buổi trước&quot; để bắt đầu</p>
             </div>
           )}
 
@@ -189,13 +318,24 @@ export default function SessionDetailPage() {
             {logbook.map((entry, eIdx) => (
               <Card key={eIdx} className="overflow-hidden border shadow-sm">
                  <div className="bg-gray-50 border-b p-3 flex gap-2 items-center">
-                    <Input 
-                      placeholder="Tên bài tập (VD: Bench Press)" 
-                      className="font-bold text-gray-900 bg-white shadow-sm"
-                      value={entry.exercise}
-                      onChange={(e) => updateExercise(eIdx, e.target.value)}
-                      disabled={isDone}
-                    />
+                    {/* Exercise Picker replaces text input */}
+                    <div className="flex-1">
+                      <ExercisePicker
+                        value={entry.exercise}
+                        onChange={(val) => updateExercise(eIdx, val)}
+                        disabled={isDone}
+                      />
+                    </div>
+                    {!isDone && (
+                      <div className="flex flex-col gap-0.5 shrink-0">
+                        <button onClick={() => moveExercise(eIdx, 'up')} className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded" disabled={eIdx === 0}>
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => moveExercise(eIdx, 'down')} className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded" disabled={eIdx === logbook.length - 1}>
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
                     {!isDone && (
                       <Button variant="ghost" size="icon" onClick={() => removeExercise(eIdx)} className="text-red-400 hover:text-red-600 hover:bg-red-50 shrink-0">
                         <Trash2 className="w-4 h-4" />
@@ -219,6 +359,7 @@ export default function SessionDetailPage() {
                            className="flex-1 text-center font-bold text-gray-900 bg-gray-50/50"
                            value={set.reps}
                            onChange={(e) => updateSet(eIdx, sIdx, 'reps', e.target.value)}
+                           onKeyDown={(e) => handleSetKeyDown(e, eIdx, sIdx)}
                            disabled={isDone}
                          />
                          <Input 
@@ -229,6 +370,7 @@ export default function SessionDetailPage() {
                            className="flex-1 text-center font-bold text-blue-700 bg-blue-50/50"
                            value={set.kg}
                            onChange={(e) => updateSet(eIdx, sIdx, 'kg', e.target.value)}
+                           onKeyDown={(e) => handleSetKeyDown(e, eIdx, sIdx)}
                            disabled={isDone}
                          />
                          {!isDone && (
@@ -259,7 +401,6 @@ export default function SessionDetailPage() {
             ></textarea>
           </div>
           
-          {/* Actions placeholder inside tab - hidden, maintained below */}
           <div className="h-8"></div>
         </TabsContent>
         

@@ -122,7 +122,7 @@ export default function ClientProfilePage() {
            <HealthTab clientId={clientId as string} initialWeights={weights} />
         </TabsContent>
         <TabsContent value="photos">
-           <PhotosTab />
+           <PhotosTab clientId={clientId as string} />
         </TabsContent>
       </Tabs>
     </div>

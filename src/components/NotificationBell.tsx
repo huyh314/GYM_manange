@@ -53,6 +53,7 @@ export default function NotificationBell() {
 
   return (
     <Popover>
+      {/* @ts-expect-error asChild type issue */}
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative text-gray-500 hover:bg-gray-100 hover:text-gray-900 w-10 h-10 rounded-full">
           <Bell className="w-5 h-5" />

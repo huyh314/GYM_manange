@@ -4,10 +4,10 @@ import { startOfMonth, endOfMonth, endOfDay, addDays } from 'date-fns';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ptId: string } }
+  context: { params: Promise<{ ptId: string }> }
 ) {
   try {
-    const { ptId } = params;
+    const { ptId } = await context.params;
     const supabase = createSupabaseAdminClient();
     
     // Auth check normally handled by middleware for /admin, 

@@ -33,7 +33,7 @@ export default function MonthPicker({ value, onChange }: MonthPickerProps) {
   return (
     <div className="flex items-center space-x-2">
       <span className="text-sm font-medium text-gray-600">Chọn tháng:</span>
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={(val) => { if (val) onChange(val); }}>
         <SelectTrigger className="w-[200px] h-10 font-bold bg-white text-gray-800 border-gray-200 focus:ring-1 focus:ring-primary shadow-sm rounded-lg capitalize">
           <SelectValue placeholder="Chọn tháng..." />
         </SelectTrigger>
