@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('Login error:', err);
     return NextResponse.json(
-      { error: 'Đã xảy ra lỗi máy chủ' },
+      { error: `Đã xảy ra lỗi máy chủ: ${err instanceof Error ? err.message : String(err)}` },
       { status: 500 }
     );
   }

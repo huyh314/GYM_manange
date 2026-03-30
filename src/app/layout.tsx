@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GymApp — Quản lý Phòng Gym",
-  description: "Quản lý phòng gym — gói tập, lịch dạy, check-in, tính lương",
+  title: "QN Fitness — Quản lý Phòng Tập",
+  description: "QN Private Fitness — Hệ thống quản lý phòng tập chuyên nghiệp",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
-    title: "GymApp",
+    statusBarStyle: "black-translucent",
+    title: "QN Fitness",
   },
   other: {
     "mobile-web-app-capable": "yes",
@@ -31,7 +31,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#534AB7",
+  themeColor: "#000000",
 };
 
 import { Toaster } from "sonner";
