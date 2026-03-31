@@ -16,6 +16,7 @@ create table packages (
   total_sessions int not null,
   price          bigint not null,
   description    text,
+  tier           varchar(20) default 'normal' check (tier in ('normal', 'vip', 'premium')),
   is_active      boolean default true,
   created_at     timestamptz default now()
 );

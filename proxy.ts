@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from './lib/auth';
+import { verifyToken } from './src/lib/auth';
 
-export async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get('token')?.value;
 
-  // Paths that don't need auth
-  if (pathname === '/login' || pathname === '/unauthorized' || pathname.startsWith('/_next') || pathname.startsWith('/api')) {
-    if (pathname === '/login' && token) {
+  // 1. Define clearly what is private/protected
+  const isProtectedRoute = 
+    pathname.startsWith('/admin') || 
+    pathname.startsWith('/pt') || 
+    pathname.startsWith('/client');
+
+  // 2. Handle Public Routes (Root, Login, Unauthorized, API, Static Assets)
+  if (!isProtectedRoute) {
+    // If user is already logged in and visits Root or Login, redirect to their dashboard
+    if ((pathname === '/' || pathname === '/login') && token) {
       const payload = await verifyToken(token);
       if (payload) {
         if (payload.role === 'admin') return NextResponse.redirect(new URL('/admin/dashboard', req.url));
@@ -15,9 +22,11 @@ export async function middleware(req: NextRequest) {
         if (payload.role === 'client') return NextResponse.redirect(new URL('/client/home', req.url));
       }
     }
+    // Otherwise, just let them see the public page (Landing Page, etc.)
     return NextResponse.next();
   }
 
+  // 3. Handle Protected Routes
   if (!token) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
@@ -30,11 +39,11 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
-  // Role based protection
+  // Role based protection for private routes
   if (pathname.startsWith('/admin')) {
-    // Allow PTs to view client profiles
+    // Allow PTs to view specific client profiles if needed, otherwise strict admin
     if (pathname.startsWith('/admin/clients/') && payload.role === 'pt') {
-      // PT allowed
+      // Permission granted
     } else if (payload.role !== 'admin') {
       return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
@@ -45,7 +54,6 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith('/client') && payload.role !== 'client') {
-     // Admin/PT can access /client? Maybe no, client only
     return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 
@@ -53,5 +61,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // Broad matcher that excludes known static file patterns
+  // This helps ensure /, /login, and other root routes are processed
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|images|icons|manifest.json|sw.js|.*\\..*).*)'],
 };

@@ -66,9 +66,9 @@ DELETE FROM users WHERE role IN ('pt', 'client');
 DELETE FROM packages;
 
 -- 1. Insert Packages
-INSERT INTO packages (id, name, total_sessions, price, description) VALUES
-('11111111-1111-1111-1111-111111111111', 'Gói Giảm Cân Cấp Tốc (12 Buổi)', 12, 5000000, 'Giảm mỡ thừa hiệu quả.'),
-('22222222-2222-2222-2222-222222222222', 'Gói Tăng Cơ Toàn Diện (24 Buổi)', 24, 8000000, 'Xây dựng cơ bắp săn chắc.');
+INSERT INTO packages (id, name, total_sessions, price, tier, description) VALUES
+('11111111-1111-1111-1111-111111111111', 'Gói Giảm Cân Cấp Tốc (12 Buổi)', 12, 5000000, 'normal', 'Giảm mỡ thừa hiệu quả.'),
+('22222222-2222-2222-2222-222222222222', 'Gói Tăng Cơ Toàn Diện (24 Buổi)', 24, 8000000, 'normal', 'Xây dựng cơ bắp săn chắc.');
 
 -- 2. Insert Users
 INSERT INTO users (id, name, phone, password_hash, role) VALUES ('00000000-0000-0000-0000-000000000001', 'Coach Hoang', '0911111111', '$2a$10$8kG7f3MpZmoLAq4yCMWZ8eUrS9BYdgT2s087BkeLoaor.7k6spoFO', 'pt');

@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     if (error) throw error;
     return NextResponse.json(data);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('API Error /api/admin/packages [POST]:', err);
+    return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
   }
 }

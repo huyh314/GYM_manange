@@ -84,9 +84,11 @@ export default function PackagesManagement() {
         setIsDialogOpen(false);
         fetchPackages();
       } else {
-        alert('Lưu thất bại');
+        const errorData = await res.json();
+        alert(`Lưu thất bại: ${errorData.error || res.statusText}`);
       }
-    } catch(err) {
+    } catch(err: any) {
+      alert(`Lỗi hệ thống: ${err.message}`);
       console.error(err);
     }
   };
