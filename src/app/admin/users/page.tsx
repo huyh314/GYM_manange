@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Plus, UserCog, User, ShieldCheck, QrCode } from 'lucide-react';
 import { format } from 'date-fns';
 import { DigitalMemberCard, MembershipTier } from '@/components/DigitalMemberCard';
+import { cn } from '@/lib/utils';
 
 export default function UsersManagement() {
   const [users, setUsers] = useState<any[]>([]);
@@ -21,7 +22,8 @@ export default function UsersManagement() {
     phone: '',
     password: '',
     role: 'client',
-    rate_per_session: 0
+    rate_per_session: 0,
+    tier: 'normal' as MembershipTier
   });
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   
@@ -55,7 +57,8 @@ export default function UsersManagement() {
         phone: user.phone,
         password: '',
         role: user.role,
-        rate_per_session: user.rate_per_session || 0
+        rate_per_session: user.rate_per_session || 0,
+        tier: user.tier || 'normal'
       });
     } else {
       setEditingUserId(null);
@@ -64,7 +67,8 @@ export default function UsersManagement() {
         phone: '',
         password: '',
         role: 'client',
-        rate_per_session: 0
+        rate_per_session: 0,
+        tier: 'normal'
       });
     }
     setIsDialogOpen(true);
@@ -133,7 +137,7 @@ export default function UsersManagement() {
                 <tr>
                   <th className="px-6 py-4 font-semibold">Tên người dùng</th>
                   <th className="px-6 py-4 font-semibold">Số điện thoại</th>
-                  <th className="px-6 py-4 font-semibold">Vai trò</th>
+                  <th className="px-6 py-4 font-semibold text-center">Gói/Hạng</th>
                   <th className="px-6 py-4 font-semibold">Đơn giá/ca</th>
                   <th className="px-6 py-4 font-semibold text-right">Thao tác</th>
                 </tr>
@@ -157,6 +161,16 @@ export default function UsersManagement() {
                       <td className="px-6 py-4 text-gray-600">{user.phone}</td>
                       <td className="px-6 py-4">
                         <RoleBadge role={user.role} />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={cn(
+                          "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
+                          user.tier === 'vip' ? "bg-yellow-100 text-yellow-700" : 
+                          user.tier === 'premium' ? "bg-gray-100 text-gray-700" : 
+                          "bg-blue-50 text-blue-600"
+                        )}>
+                          {user.tier || 'normal'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 font-mono text-xs">
                         {user.role === 'pt' ? (user.rate_per_session?.toLocaleString() || '0') + ' đ' : '-'}
@@ -232,6 +246,18 @@ export default function UsersManagement() {
                     />
                   </div>
                 )}
+                <div className="space-y-2">
+                   <label className="text-sm font-medium text-indigo-600">Hạng thẻ hội viên</label>
+                   <select 
+                     className="w-full flex h-10 rounded-md border border-indigo-200 bg-background px-3 py-2 text-sm ring-offset-background"
+                     value={formData.tier}
+                     onChange={e => setFormData({...formData, tier: e.target.value as MembershipTier})}
+                   >
+                     <option value="normal">Normal (Bản chuẩn)</option>
+                     <option value="vip">VIP (Thỏa sức tập luyện)</option>
+                     <option value="premium">Premium (Thượng lưu)</option>
+                   </select>
+                </div>
                 <div className="flex justify-end space-x-3 pt-4 border-t mt-6">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
                   <Button type="submit">Lưu lại</Button>
@@ -278,7 +304,7 @@ export default function UsersManagement() {
             </div>
 
             {/* The Card */}
-            <DigitalMemberCard user={viewingCardUser} tier={viewCardTier} />
+            <DigitalMemberCard user={viewingCardUser} tier={viewingCardUser.tier || viewCardTier} />
             
           </div>
         </div>

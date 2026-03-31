@@ -7,9 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Phone, FileText, Activity, Save, Ruler, Target } from 'lucide-react';
+import { Plus, UserCog, User, ShieldCheck, QrCode, Phone, FileText, Activity, Save, Ruler, Target } from 'lucide-react';
+import { format } from 'date-fns';
 import { WeightChart } from './WeightChart';
-import { DigitalMemberCard } from '@/components/DigitalMemberCard';
+import { DigitalMemberCard, MembershipTier } from '@/components/DigitalMemberCard';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function ClientProfilePage() {
@@ -40,7 +42,7 @@ export default function ClientProfilePage() {
       // Fetch Profile
       const { data: userProfile } = await supabase
         .from('users')
-        .select('id, name, phone, notes, avatar_url, height_cm, target_weight, role')
+        .select('id, name, phone, notes, avatar_url, height_cm, target_weight, role, tier')
         .eq('id', userId)
         .single();
         
@@ -137,7 +139,7 @@ export default function ClientProfilePage() {
               phone: profile.phone,
               role: profile.role || 'client'
             }} 
-            tier="normal" // This could be dynamic based on a 'member_tier' column
+            tier={profile.tier || 'normal'}
           />
         )}
       </div>

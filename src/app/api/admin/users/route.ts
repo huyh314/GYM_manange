@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const supabase = createSupabaseAdminClient();
     const role = req.nextUrl.searchParams.get('role');
     
-    let query = supabase.from('users').select('id, name, phone, role, rate_per_session').order('name');
+    let query = supabase.from('users').select('id, name, phone, role, rate_per_session, tier').order('name');
     if (role) {
       query = query.eq('role', role);
     }
@@ -36,9 +36,10 @@ export async function POST(req: NextRequest) {
         phone: body.phone,
         password_hash: passwordHash,
         role: body.role || 'client',
-        rate_per_session: body.rate_per_session || 0
+        rate_per_session: body.rate_per_session || 0,
+        tier: body.tier || 'normal'
       }])
-      .select('id, name, phone, role, rate_per_session')
+      .select('id, name, phone, role, rate_per_session, tier')
       .single();
 
     if (error) throw error;
@@ -68,7 +69,7 @@ export async function PATCH(req: NextRequest) {
       .from('users')
       .update(updates)
       .eq('id', id)
-      .select('id, name, phone, role, rate_per_session')
+      .select('id, name, phone, role, rate_per_session, tier')
       .single();
 
     if (error) throw error;
