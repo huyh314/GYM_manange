@@ -6,6 +6,7 @@ import { LayoutDashboard, Package, Users, CalendarPlus, Menu, X, UserCog, BarCha
 import { useState } from 'react';
 import { LogoutButton } from '@/components/LogoutButton';
 import NotificationBell from '@/components/NotificationBell';
+import { motion } from 'framer-motion';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -40,12 +41,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={item.href}
               href={item.href}
               onClick={() => setIsSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`relative flex items-center gap-3 px-4 py-2 text-sm rounded-md outline-none transition-colors ${!isActive ? 'hover:bg-gray-100 text-gray-700' : ''}`}
             >
-              <Icon size={18} />
-              <span>{item.label}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="admin-active-nav"
+                  className="absolute inset-0 bg-blue-50 rounded-md"
+                  initial={false}
+                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                />
+              )}
+              <motion.div 
+                whileTap={{ scale: 0.98 }}
+                className={`flex items-center gap-3 relative z-10 w-full transition-colors duration-200 ${isActive ? 'text-blue-700 font-bold' : 'font-medium'}`}
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </motion.div>
             </Link>
           );
         })}

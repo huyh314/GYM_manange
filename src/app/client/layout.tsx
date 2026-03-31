@@ -8,6 +8,7 @@ import { memo, useState, useEffect } from 'react';
 import { QRCheckInModal } from '@/components/QRCheckInModal';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 
 // Memoized NavItem to prevent unnecessary re-renders of the entire navbar
@@ -16,12 +17,23 @@ const NavItem = memo(({ item, isActive }: { item: any, isActive: boolean }) => {
   return (
     <Link
       href={item.href}
-      className={`flex flex-col items-center justify-center space-y-1 w-full h-full transition-colors ${
-        isActive ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
-      }`}
+      className="relative flex flex-col items-center justify-center flex-1 h-full z-10"
     >
-      <Icon size={20} />
-      <span className="text-[10px] font-medium leading-none">{item.label}</span>
+      {isActive && (
+        <motion.div
+           layoutId="client-active-nav"
+           className="absolute top-1.5 bottom-1.5 left-3 right-3 bg-indigo-50 rounded-2xl"
+           initial={false}
+           transition={{ type: "spring", stiffness: 350, damping: 30 }}
+        />
+      )}
+      <motion.div 
+         whileTap={{ scale: 0.92 }}
+         className={`relative z-10 flex flex-col items-center justify-center space-y-1 w-full h-full transition-colors duration-200 ${isActive ? 'text-indigo-700 font-bold' : 'text-gray-500 hover:text-gray-900 font-medium'}`}
+      >
+         <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+         <span className="text-[10px] leading-none">{item.label}</span>
+      </motion.div>
     </Link>
   );
 });
