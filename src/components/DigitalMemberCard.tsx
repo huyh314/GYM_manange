@@ -28,9 +28,9 @@ interface DigitalMemberCardProps {
 const NormalCard: React.FC<{ user: DigitalMemberCardProps['user'] }> = ({ user }) => {
   return (
     <div
-      className="relative w-[340px] h-[210px] rounded-2xl overflow-hidden text-white flex flex-col justify-between p-6 border border-slate-400/30 transition-all hover:scale-[1.02] duration-500 group"
+      className="relative w-[340px] h-[210px] rounded-2xl overflow-hidden text-white flex flex-col justify-between p-6 border border-[#6b705c]/30 transition-all hover:scale-[1.02] duration-500 group"
       style={{
-        background: 'linear-gradient(135deg, #2c3e6b 0%, #1e3a5f 40%, #1a2d4d 100%)',
+        background: 'linear-gradient(135deg, #6b705c 0%, #4a4e3e 40%, #2f3228 100%)',
       }}
     >
       {/* Geometric line pattern overlay */}
@@ -88,7 +88,7 @@ const NormalCard: React.FC<{ user: DigitalMemberCardProps['user'] }> = ({ user }
               level="H"
               includeMargin={false}
               bgColor="#ffffff"
-              fgColor="#1e3a5f"
+              fgColor="#2f3228"
               imageSettings={{
                 src: "/favicon.ico",
                 height: 16,
@@ -430,10 +430,10 @@ export const DigitalMemberCard: React.FC<DigitalMemberCardProps> = ({ user, tier
       <div className="flex gap-3 mt-8 no-export">
         <Button 
           onClick={downloadCard} 
-          className="px-8 py-5 h-auto rounded-2xl font-bold text-gray-700 bg-white hover:bg-gray-100 border-2 border-gray-200 shadow-sm transition-all hover:scale-105" 
+          className="px-8 py-5 h-auto rounded-2xl font-bold text-zinc-700 bg-white hover:bg-zinc-50 border-2 border-zinc-200 shadow-sm transition-all hover:scale-105" 
           variant="outline"
         >
-          <Download className="w-5 h-5 mr-3 text-indigo-600" />
+          <Download className="w-5 h-5 mr-3 text-[#8c7442]" />
           Tải Thẻ Học Viên (PNG)
         </Button>
       </div>

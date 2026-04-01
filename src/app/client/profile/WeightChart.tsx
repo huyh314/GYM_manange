@@ -27,8 +27,8 @@ export function WeightChart({ data }: { data: WeightData[] }) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-        <p className="text-gray-400 font-medium">Chưa có dữ liệu cân nặng.</p>
+      <div className="flex items-center justify-center h-64 bg-[#1e1e1e] rounded-xl border border-dashed border-[#2a2b2e]">
+        <p className="text-zinc-500 font-medium">Chưa có dữ liệu cân nặng.</p>
       </div>
     );
   }
@@ -40,31 +40,31 @@ export function WeightChart({ data }: { data: WeightData[] }) {
   const domainMax = Math.ceil(maxWeight + 2);
 
   return (
-    <div className="h-64 w-full bg-white rounded-xl shadow-sm border p-4 pt-6">
+    <div className="h-64 w-full bg-[#1e1e1e] rounded-xl shadow-sm border border-[#2a2b2e] p-4 pt-6">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2a2b2e" />
           <XAxis 
             dataKey="date" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 12, fill: '#6B7280' }}
+            tick={{ fontSize: 12, fill: '#71717a' }}
             dy={10}
           />
           <YAxis 
             domain={[domainMin, domainMax]} 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 12, fill: '#6B7280' }}
+            tick={{ fontSize: 12, fill: '#71717a' }}
             dx={-10}
           />
           <Tooltip
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="bg-gray-900 border-0 text-white rounded-lg shadow-xl p-3">
-                    <p className="font-bold text-lg mb-1">{payload[0].value} kg</p>
-                    <p className="text-xs text-gray-400">{payload[0].payload.fullDate}</p>
+                  <div className="bg-[#2a2b2e] border border-[#d4af37]/30 text-white rounded-lg shadow-xl p-3">
+                    <p className="font-bold text-lg mb-1 text-[#d4af37]">{payload[0].value} kg</p>
+                    <p className="text-xs text-zinc-400">{payload[0].payload.fullDate}</p>
                   </div>
                 );
               }
@@ -74,10 +74,10 @@ export function WeightChart({ data }: { data: WeightData[] }) {
           <Line
             type="monotone"
             dataKey="weight"
-            stroke="#4F46E5" // indigo-600
+            stroke="#d4af37"
             strokeWidth={3}
-            dot={{ r: 4, strokeWidth: 2, fill: 'white', stroke: '#4F46E5' }}
-            activeDot={{ r: 6, fill: '#4F46E5', stroke: 'white', strokeWidth: 2 }}
+            dot={{ r: 4, strokeWidth: 2, fill: '#1e1e1e', stroke: '#d4af37' }}
+            activeDot={{ r: 6, fill: '#d4af37', stroke: '#1e1e1e', strokeWidth: 2 }}
             animationDuration={1500}
             animationEasing="ease-out"
           />

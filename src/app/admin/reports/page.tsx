@@ -72,10 +72,10 @@ export default function AdminReportsPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-gray-900">Báo Cáo Tổng Hợp</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-black tracking-tight text-white/90 font-serif">Báo Cáo Tổng Hợp</h1>
+          <p className="text-sm text-gray-400 mt-1">
             Xem số liệu doanh thu và hiệu suất HLV
           </p>
         </div>
@@ -84,10 +84,10 @@ export default function AdminReportsPage() {
           <MonthPicker value={selectedMonth} onChange={setSelectedMonth} />
           
           <div className="flex items-center gap-2">
-            <Button onClick={handleExportExcel} variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 gap-2">
+            <Button onClick={handleExportExcel} variant="outline" className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 gap-2">
               <Download size={16} /> <span>Excel</span>
             </Button>
-            <Button onClick={handleExportPDF} variant="outline" className="border-rose-200 text-rose-700 hover:bg-rose-50 gap-2">
+            <Button onClick={handleExportPDF} variant="outline" className="border-rose-500/50 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 gap-2">
               <FileText size={16} /> <span>PDF</span>
             </Button>
           </div>
@@ -99,13 +99,13 @@ export default function AdminReportsPage() {
 
       {/* PT Report Table */}
       <div>
-        <h2 className="text-lg font-bold text-gray-800 mb-4">Hiệu suất HLV trong tháng</h2>
+        <h2 className="text-lg font-bold text-[#d4af37] font-serif mb-4">Hiệu suất HLV trong tháng</h2>
         <PTReportTable data={data?.ptReport || []} isLoading={isLoading} />
       </div>
 
       {/* Packages Sold Table */}
       <div>
-        <h2 className="text-lg font-bold text-gray-800 mb-4">Danh sách gói đã bán</h2>
+        <h2 className="text-lg font-bold text-[#d4af37] font-serif mb-4">Danh sách gói đã bán</h2>
         <PackagesSoldTable data={data?.packagesList || []} isLoading={isLoading} />
       </div>
     </div>

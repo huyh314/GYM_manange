@@ -2,116 +2,144 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Users, CalendarPlus, Menu, X, UserCog, BarChart3, Dumbbell, DollarSign, CalendarDays, Bell, QrCode, Notebook } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { LogoutButton } from '@/components/LogoutButton';
 import NotificationBell from '@/components/NotificationBell';
 import { motion } from 'framer-motion';
+import { QNLogo } from '@/components/QNLogo';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
   const navItems = [
-    { label: 'Bảng số liệu', href: '/admin/dashboard', icon: LayoutDashboard },
-    { label: 'Báo cáo', href: '/admin/reports', icon: BarChart3 },
-    { label: 'Điểm danh QR', href: '/admin/check-in', icon: QrCode },
-    { label: 'Quản lý Người dùng', href: '/admin/users', icon: UserCog },
-    { label: 'Danh Sách Gói', href: '/admin/packages', icon: Package },
-    { label: 'Học Viên & Đăng ký', href: '/admin/assign-package', icon: Users },
-    { label: 'Xếp lịch', href: '/admin/schedule', icon: CalendarPlus },
-    { label: 'Buổi tập', href: '/admin/sessions', icon: CalendarDays },
-    { label: 'Giáo án mẫu', href: '/admin/routines', icon: Notebook },
-    { label: 'Thư viện bài tập', href: '/admin/exercises', icon: Dumbbell },
-    { label: 'Tính lương', href: '/admin/payroll', icon: DollarSign },
-    { label: 'Thông báo', href: '/admin/notifications', icon: Bell },
+    { label: 'Bảng số liệu', href: '/admin/dashboard' },
+    { label: 'Người dùng', href: '/admin/users' },
+    { label: 'Gói tập', href: '/admin/packages' },
+    { label: 'Buổi tập', href: '/admin/sessions' },
+    { label: 'Xếp lịch', href: '/admin/schedule' },
+    { label: 'Tính lương', href: '/admin/payroll' },
+    { label: 'Báo cáo', href: '/admin/reports' },
   ];
 
-  const NavContent = () => (
-    <div className="flex flex-col h-full bg-white border-r">
-      <div className="p-6 border-b">
-        <span className="text-xl font-bold text-primary tracking-tight">GYM ADMIN</span>
+  // Mobile drawer content
+  const MobileNavContent = () => (
+    <div className="flex flex-col h-full bg-[#1a1c1e] text-zinc-100 border-r border-[#2a2b2e]">
+      <div className="p-6 border-b border-[#2a2b2e] flex items-center justify-between">
+        <h1 className="font-sans font-medium text-lg uppercase tracking-widest flex items-center gap-2">
+          <QNLogo className="w-8 h-8" color="gold" />
+          <span>QN<span className="text-[#d4af37]">FITNESS</span></span>
+        </h1>
+        <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-zinc-400 hover:text-white">
+          <X size={24} />
+        </button>
       </div>
-      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
         {navItems.map((item) => {
-          const Icon = item.icon;
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setIsSidebarOpen(false)}
-              className={`relative flex items-center gap-3 px-4 py-2 text-sm rounded-md outline-none transition-colors ${!isActive ? 'hover:bg-gray-100 text-gray-700' : ''}`}
+              className={`block px-4 py-3 rounded-md transition-colors ${isActive ? 'bg-[#d4af37]/10 text-[#d4af37] font-bold' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'}`}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="admin-active-nav"
-                  className="absolute inset-0 bg-blue-50 rounded-md"
-                  initial={false}
-                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                />
-              )}
-              <motion.div 
-                whileTap={{ scale: 0.98 }}
-                className={`flex items-center gap-3 relative z-10 w-full transition-colors duration-200 ${isActive ? 'text-blue-700 font-bold' : 'font-medium'}`}
-              >
-                <Icon size={18} />
-                <span>{item.label}</span>
-              </motion.div>
+              {item.label}
             </Link>
           );
         })}
       </nav>
-      <div className="p-4 border-t mt-auto">
+      <div className="p-4 border-t border-[#2a2b2e] mt-auto">
         <LogoutButton />
       </div>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar for Desktop */}
-      <aside className="hidden md:block w-64 flex-shrink-0">
-        <div className="h-full sticky top-0">
-            <NavContent />
+    <div className="flex flex-col min-h-screen bg-[#121212] text-zinc-100 font-sans">
+      {/* Desktop Header / Top Nav */}
+      <header className="hidden md:flex items-center justify-between px-6 lg:px-10 h-20 bg-[#1a1c1e] border-b border-[#2a2b2e] sticky top-0 z-30 shadow-md">
+        <div className="flex items-center gap-8 lg:gap-12 h-full">
+          <Link href="/admin/dashboard" className="flex items-center gap-3 group">
+            <QNLogo className="w-10 h-10 group-hover:scale-105 transition-transform" color="gold" />
+            <h1 className="font-sans font-medium text-xl uppercase tracking-widest text-zinc-100 hidden lg:block">
+              QN<span className="text-[#d4af37]">FITNESS</span>
+            </h1>
+          </Link>
+          
+          <nav className="flex items-center h-full">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="relative h-full flex items-center px-4 lg:px-6 outline-none group"
+                >
+                  <span className={`text-[13px] tracking-wider uppercase transition-colors duration-200 ${isActive ? 'text-[#d4af37] font-bold' : 'text-zinc-400 font-medium group-hover:text-zinc-200'}`}>
+                    {item.label}
+                  </span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="admin-top-active-nav"
+                      className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#FDE68A] via-[#F59E0B] to-[#B45309]"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
-      </aside>
 
-      {/* Mobile Drawer */}
-      <div className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <div className="absolute inset-0 bg-black/50" onClick={() => setIsSidebarOpen(false)} />
-        <div className={`relative w-72 h-full transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-           <NavContent />
-        </div>
-      </div>
-
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile Header */}
-        <header className="md:hidden flex items-center justify-between px-4 h-16 bg-white border-b sticky top-0 z-30 shadow-sm">
-          <span className="text-lg font-bold text-primary">GYM ADMIN</span>
-          <div className="flex items-center gap-2">
-            <NotificationBell />
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 -mr-2 text-gray-700">
-              {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+        <div className="flex items-center gap-4 lg:gap-6">
+          <div className="relative text-zinc-400 hover:text-[#d4af37] transition-colors cursor-pointer">
+             <NotificationBell />
           </div>
-        </header>
-
-        {/* Desktop Header */}
-        <header className="hidden md:flex items-center justify-between px-6 h-16 bg-white border-b sticky top-0 z-30 shadow-sm">
-          <h2 className="font-semibold text-lg text-gray-800">Cổng Quản Trị</h2>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <NotificationBell />
-            <div className="flex items-center gap-2 border-l pl-4">
-              <span className="font-medium text-gray-700">Admin</span>
+          <div className="flex items-center gap-3 pl-6 border-l border-[#2a2b2e]">
+            <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center border border-[#d4af37]/40 shadow-[0_0_10px_rgba(212,175,55,0.2)] overflow-hidden">
+               <img src="https://ui-avatars.com/api/?name=Admin&background=1a1c1e&color=d4af37&bold=true" alt="Admin Avatar" className="w-full h-full object-cover" />
+            </div>
+            <div className="hidden lg:flex flex-col">
+              <span className="text-[13px] font-bold text-zinc-100 leading-tight">Sarah Jenkins</span>
+              <span className="text-[10px] uppercase tracking-wider text-[#d4af37]">Admin Quản Lý</span>
+            </div>
+            <div className="ml-2 hidden lg:flex items-center">
+              <LogoutButton iconOnly className="p-2 text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all" />
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main className="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full">
-           {children}
-        </main>
+      {/* Mobile Header */}
+      <header className="md:hidden flex items-center justify-between px-4 h-16 bg-[#1a1c1e] border-b border-[#2a2b2e] sticky top-0 z-30 shadow-md">
+        <div className="flex items-center gap-2">
+          <QNLogo className="w-8 h-8" color="gold" />
+          <span className="text-lg font-bold text-zinc-100 tracking-widest uppercase">
+            QN<span className="text-[#d4af37]">FITNESS</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <NotificationBell />
+          <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-zinc-400 hover:text-[#d4af37]">
+            <Menu size={24} />
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Drawer */}
+      <div className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
+        <div className={`absolute top-0 left-0 bottom-0 w-72 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+           <MobileNavContent />
+        </div>
       </div>
+
+      <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-10 bg-[#121212] min-h-[calc(100vh-80px)]">
+         {children}
+      </main>
     </div>
   );
 }

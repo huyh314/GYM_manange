@@ -73,21 +73,21 @@ export default function SchedulePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold border-b pb-4">Quản lý Lịch Tập</h1>
+      <h1 className="text-2xl font-bold border-b border-white/10 pb-4 text-white/90 font-serif">Quản lý Lịch Tập</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Form Tạo Lịch */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tạo lịch tập mới</CardTitle>
+        <Card className="bg-[#1a1c1e] border-white/5 text-white shadow-2xl">
+          <CardHeader className="border-b border-white/10 pb-4">
+            <CardTitle className="text-[#d4af37] font-serif">Tạo lịch tập mới</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Chọn Gói / Học viên đang active</label>
+                <label className="text-sm font-medium text-gray-300">Chọn Gói / Học viên đang active</label>
                 <select 
                   required
-                  className="w-full flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                  className="w-full flex h-10 rounded-md border border-white/10 bg-[#121212] px-3 py-2 text-sm text-white focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/50"
                   value={formData.user_package_id} 
                   onChange={e => setFormData({...formData, user_package_id: e.target.value})}
                 >
@@ -102,52 +102,52 @@ export default function SchedulePage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Ngày tập</label>
-                  <Input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+                  <label className="text-sm font-medium text-gray-300">Ngày tập</label>
+                  <Input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-[#121212] border-white/10 text-white css-invert-calendar focus:border-[#d4af37]" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Giờ tập</label>
-                  <Input type="time" required value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} />
+                  <label className="text-sm font-medium text-gray-300">Giờ tập</label>
+                  <Input type="time" required value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} className="bg-[#121212] border-white/10 text-white css-invert-calendar focus:border-[#d4af37] w-full block" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Ghi chú (Tùy chọn)</label>
-                <Input value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} />
+                <label className="text-sm font-medium text-gray-300">Ghi chú (Tùy chọn)</label>
+                <Input value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="bg-[#121212] border-white/10 text-white focus:border-[#d4af37]" />
               </div>
 
-              <Button type="submit" className="w-full mt-4 bg-primary text-white hover:bg-primary/90">Xác nhận Đặt lịch</Button>
+              <Button type="submit" className="w-full mt-4 bg-[#d4af37] text-black hover:bg-[#b5952f] font-bold shadow-[0_4px_14px_0_rgba(212,175,55,0.39)] transition-all">Xác nhận Đặt lịch</Button>
             </form>
           </CardContent>
         </Card>
 
         {/* Danh sách Lịch */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Danh sách lịch sắp tới</CardTitle>
+        <Card className="bg-[#1a1c1e] border-white/5 text-white shadow-2xl flex flex-col">
+          <CardHeader className="border-b border-white/10 pb-4">
+            <CardTitle className="text-[#d4af37] font-serif">Danh sách lịch sắp tới</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4 max-h-[500px] overflow-y-auto">
+          <CardContent className="pt-6 flex-1 h-[450px]">
+            <div className="space-y-4 h-full overflow-y-auto pr-2 custom-scrollbar">
               {sessions.length === 0 ? (
-                <p className="text-sm text-gray-500">Chưa có lịch tập nào.</p>
+                <p className="text-sm text-gray-500 text-center py-8">Chưa có lịch tập nào.</p>
               ) : (
                 sessions.filter(s => s.status !== 'completed').map(session => (
-                  <div key={session.id} className="p-3 border rounded-lg bg-gray-50 flex flex-col gap-1">
+                  <div key={session.id} className="p-4 border border-white/10 rounded-lg bg-[#121212] flex flex-col gap-2 hover:border-[#d4af37]/50 transition-colors">
                     <div className="flex justify-between items-start">
-                      <span className="font-semibold text-blue-700">
+                      <span className="font-semibold text-[#d4af37]">
                         {new Date(session.scheduled_at).toLocaleDateString('vi-VN')}
                         {' - '}
                         {new Date(session.scheduled_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                       </span>
-                      <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full font-medium">
+                      <span className="text-xs px-2.5 py-1 bg-[#d4af37]/10 text-[#d4af37] border border-[#d4af37]/30 rounded-full font-medium tracking-wide">
                         {session.status === 'scheduled' ? 'Sắp tới' : session.status}
                       </span>
                     </div>
-                    <div className="text-sm mt-1">
-                      <p><strong>Học viên:</strong> {session.client?.name}</p>
-                      <p><strong>PT:</strong> {session.pt?.name}</p>
+                    <div className="text-sm mt-1 text-gray-300">
+                      <p><strong className="text-gray-400">Học viên:</strong> {session.client?.name}</p>
+                      <p><strong className="text-gray-400">PT:</strong> {session.pt?.name}</p>
                     </div>
-                    {session.notes && <p className="text-xs text-gray-500 italic mt-1">"{session.notes}"</p>}
+                    {session.notes && <p className="text-xs text-gray-500 italic mt-1 border-t border-white/5 pt-2">"{session.notes}"</p>}
                   </div>
                 ))
               )}

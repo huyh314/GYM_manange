@@ -22,14 +22,14 @@ const NavItem = memo(({ item, isActive }: { item: any, isActive: boolean }) => {
       {isActive && (
         <motion.div
            layoutId="client-active-nav"
-           className="absolute top-1.5 bottom-1.5 left-3 right-3 bg-indigo-50 rounded-2xl"
+           className="absolute top-1.5 bottom-1.5 left-3 right-3 bg-[#2a2b2e]/80 rounded-2xl"
            initial={false}
            transition={{ type: "spring", stiffness: 350, damping: 30 }}
         />
       )}
       <motion.div 
          whileTap={{ scale: 0.92 }}
-         className={`relative z-10 flex flex-col items-center justify-center space-y-1 w-full h-full transition-colors duration-200 ${isActive ? 'text-indigo-700 font-bold' : 'text-gray-500 hover:text-gray-900 font-medium'}`}
+         className={`relative z-10 flex flex-col items-center justify-center space-y-1 w-full h-full transition-colors duration-200 ${isActive ? 'text-[#d4af37] font-bold' : 'text-zinc-500 hover:text-zinc-300 font-medium'}`}
       >
          <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
          <span className="text-[10px] leading-none">{item.label}</span>
@@ -66,15 +66,17 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-16">
-      <header className="sticky top-0 z-50 bg-white border-b px-4 py-3 flex items-center justify-between shadow-sm backdrop-blur-md bg-white/80">
-        <h1 className="font-black text-lg text-indigo-700 uppercase tracking-tight">Gym QN</h1>
+    <div className="flex flex-col min-h-screen bg-[#121212] pb-16">
+      <header className="sticky top-0 z-50 bg-[#121212]/90 px-4 py-4 flex items-center justify-between backdrop-blur-md">
+        <h1 className="font-sans font-medium text-lg text-zinc-100 uppercase tracking-widest">
+          QN<span className="text-[#d4af37] ml-2">FITNESS</span>
+        </h1>
         <div className="flex items-center space-x-2">
           {user && (
             <QRCheckInModal 
               user={user} 
               trigger={
-                <Button size="icon" variant="ghost" className="text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                <Button size="icon" variant="ghost" className="text-[#d4af37] hover:bg-[#2a2b2e] hover:text-[#e5c56c] rounded-xl transition-all">
                   <QrCode size={22} strokeWidth={2.5} />
                 </Button>
               }
@@ -103,7 +105,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t flex justify-around items-center h-16 px-2 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 z-20 bg-[#1a1c1e] border-t border-[#2a2b2e] flex justify-around items-center h-16 px-2 shadow-2xl">
         {navItems.map((item) => (
           <NavItem key={item.href} item={item} isActive={pathname === item.href} />
         ))}

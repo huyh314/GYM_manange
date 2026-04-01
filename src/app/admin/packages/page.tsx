@@ -109,9 +109,9 @@ export default function PackagesManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center border-b pb-4">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Quản lý Gói tập</h1>
-        <Button onClick={() => handleOpenDialog()} className="bg-primary">
+      <div className="flex justify-between items-center border-b border-white/10 pb-4">
+        <h1 className="text-2xl font-bold tracking-tight text-white/90 font-serif">Quản lý Gói tập</h1>
+        <Button onClick={() => handleOpenDialog()} className="bg-[#d4af37] text-black hover:bg-[#b5952f] shadow-lg shadow-black/20">
           <Plus className="mr-2 h-4 w-4" />
           Thêm gói mới
         </Button>
@@ -121,85 +121,85 @@ export default function PackagesManagement() {
         {isLoading ? (
           <p className="text-muted-foreground p-4">Đang tải dữ liệu...</p>
         ) : packages.map((pkg) => (
-          <Card key={pkg.id} className={cn("relative overflow-hidden", !pkg.is_active && 'opacity-60')}>
-            {pkg.tier === 'vip' && <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden"><div className="bg-yellow-500 text-white text-[10px] font-bold py-1 px-4 text-center transform rotate-45 translate-x-[25px] translate-y-[10px] uppercase shadow-sm">VIP</div></div>}
-            {pkg.tier === 'premium' && <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden"><div className="bg-slate-900 text-white text-[9px] font-bold py-1 px-4 text-center transform rotate-45 translate-x-[25px] translate-y-[10px] uppercase shadow-sm">PREMIUM</div></div>}
+          <Card key={pkg.id} className={cn("relative overflow-hidden bg-[#1a1c1e] text-white border-white/5 shadow-2xl transition hover:border-[#d4af37]/50", !pkg.is_active && 'opacity-60 grayscale')}>
+            {pkg.tier === 'vip' && <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden"><div className="bg-gradient-to-r from-yellow-600 to-yellow-500 text-black text-[10px] font-bold py-1 px-4 text-center transform rotate-45 translate-x-[25px] translate-y-[10px] uppercase shadow-sm">VIP</div></div>}
+            {pkg.tier === 'premium' && <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden"><div className="bg-gradient-to-r from-gray-500 to-gray-400 text-black text-[9px] font-bold py-1 px-4 text-center transform rotate-45 translate-x-[25px] translate-y-[10px] uppercase shadow-sm">PREMIUM</div></div>}
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <div className="flex flex-col gap-1">
-                <CardTitle className="text-xl">{pkg.name}</CardTitle>
+                <CardTitle className="text-xl text-white/90 font-serif">{pkg.name}</CardTitle>
                 <div className="flex gap-2 items-center">
-                  {pkg.tier === 'normal' && <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 uppercase tracking-wider">Thường</span>}
-                  {pkg.tier === 'vip' && <span className="text-[10px] font-semibold bg-yellow-50 text-yellow-600 px-1.5 py-0.5 rounded border border-yellow-200 uppercase tracking-wider">VIP</span>}
-                  {pkg.tier === 'premium' && <span className="text-[10px] font-semibold bg-gray-900 text-white px-1.5 py-0.5 rounded uppercase tracking-wider">Premium</span>}
+                  {pkg.tier === 'normal' && <span className="text-[10px] font-semibold bg-blue-900/30 text-blue-400 px-1.5 py-0.5 rounded border border-blue-800/50 uppercase tracking-wider">Thường</span>}
+                  {pkg.tier === 'vip' && <span className="text-[10px] font-semibold bg-yellow-900/30 text-yellow-500 px-1.5 py-0.5 rounded border border-yellow-800/50 uppercase tracking-wider">VIP</span>}
+                  {pkg.tier === 'premium' && <span className="text-[10px] font-semibold bg-gray-800 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700 uppercase tracking-wider">Premium</span>}
                 </div>
               </div>
               <div className="flex space-x-2">
-                <button onClick={() => handleOpenDialog(pkg)} className="text-gray-500 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                <button onClick={() => handleOpenDialog(pkg)} className="text-gray-400 hover:text-[#d4af37] transition-colors p-1 rounded-full hover:bg-white/10">
                   <Edit2 size={16} />
                 </button>
-                <button onClick={() => handleDelete(pkg.id)} className="text-gray-500 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                <button onClick={() => handleDelete(pkg.id)} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-white/10">
                   <Trash2 size={16} />
                 </button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-1 text-sm text-gray-600">
-                <p><span className="font-medium text-gray-900">Số buổi:</span> {pkg.total_sessions}</p>
-                <p><span className="font-medium text-gray-900">Giá tiền:</span> <span className="text-primary font-bold">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price)}</span></p>
+              <div className="space-y-1 text-sm text-gray-400">
+                <p><span className="font-medium text-gray-300">Số buổi:</span> {pkg.total_sessions}</p>
+                <p><span className="font-medium text-gray-300">Giá tiền:</span> <span className="text-[#d4af37] font-bold tracking-widest">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pkg.price)}</span></p>
                 {pkg.description && <p className="italic text-xs mt-2 text-gray-500 line-clamp-2">{pkg.description}</p>}
-                {!pkg.is_active && <span className="inline-block mt-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Đã vô hiệu hóa</span>}
+                {!pkg.is_active && <span className="inline-block mt-2 text-xs bg-red-900/50 text-red-400 px-2 py-1 rounded">Đã vô hiệu hóa</span>}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Simple Dialog implementation built-in to avoid dependency missing issues for Dialog */}
+      {/* Simple Dialog wrapper */}
       {isDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md bg-white shadow-xl animate-in zoom-in-95">
-            <CardHeader>
-              <CardTitle>{editingPackage ? 'Sửa gói tập' : 'Thêm gói tập mới'}</CardTitle>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <Card className="w-full max-w-md bg-[#1a1c1e] text-white border-white/10 shadow-2xl animate-in zoom-in-95">
+            <CardHeader className="pb-4 border-b border-white/10">
+              <CardTitle className="font-serif text-[#d4af37]">{editingPackage ? 'Sửa gói tập' : 'Thêm gói tập mới'}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Hạng gói</label>
+                  <label className="text-sm font-medium text-gray-300">Hạng gói</label>
                   <Tabs value={formData.tier} onValueChange={(val: any) => setFormData({...formData, tier: val})}>
-                    <TabsList className="w-full bg-gray-100 p-1">
-                      <TabsTrigger value="normal" className="flex-1">Gói thường</TabsTrigger>
-                      <TabsTrigger value="vip" className="flex-1">Gói VIP</TabsTrigger>
-                      <TabsTrigger value="premium" className="flex-1">Gói Premium</TabsTrigger>
+                    <TabsList className="w-full bg-[#121212] border border-white/10 p-1">
+                      <TabsTrigger value="normal" className="flex-1 data-[state=active]:bg-white/10 data-[state=active]:text-white text-gray-400">Gói thường</TabsTrigger>
+                      <TabsTrigger value="vip" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-600 data-[state=active]:to-yellow-500 data-[state=active]:text-black text-gray-400">Gói VIP</TabsTrigger>
+                      <TabsTrigger value="premium" className="flex-1 data-[state=active]:bg-gray-300 data-[state=active]:text-black text-gray-400">Gói Premium</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Tên gói</label>
-                  <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="VD: Gói Giảm Cân 24 buổi" />
+                  <label className="text-sm font-medium text-gray-300">Tên gói</label>
+                  <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="VD: Gói Giảm Cân 24 buổi" className="bg-[#121212] border-white/10 focus:border-[#d4af37] text-white" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                     <label className="text-sm font-medium">Số buổi</label>
-                     <Input type="number" required value={formData.total_sessions} onChange={e => setFormData({...formData, total_sessions: e.target.value})} />
+                     <label className="text-sm font-medium text-gray-300">Số buổi</label>
+                     <Input type="number" required value={formData.total_sessions} onChange={e => setFormData({...formData, total_sessions: e.target.value})} className="bg-[#121212] border-white/10 focus:border-[#d4af37] text-white" />
                   </div>
                   <div className="space-y-2">
-                     <label className="text-sm font-medium">Giá tiền (VNĐ)</label>
-                     <Input type="number" required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
+                     <label className="text-sm font-medium text-gray-300">Giá tiền (VNĐ)</label>
+                     <Input type="number" required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="bg-[#121212] border-white/10 focus:border-[#d4af37] text-white" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Mô tả thêm</label>
-                  <Input value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
+                  <label className="text-sm font-medium text-gray-300">Mô tả thêm</label>
+                  <Input value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="bg-[#121212] border-white/10 focus:border-[#d4af37] text-white" />
                 </div>
                 
                 <div className="flex items-center gap-2 pt-2">
-                   <input type="checkbox" id="activeStatus" checked={formData.is_active} onChange={e => setFormData({...formData, is_active: e.target.checked})} className="size-4" />
-                   <label htmlFor="activeStatus" className="text-sm font-medium">Kích hoạt (Cho phép hiển thị/bán)</label>
+                   <input type="checkbox" id="activeStatus" checked={formData.is_active} onChange={e => setFormData({...formData, is_active: e.target.checked})} className="size-4 accent-[#d4af37] bg-black" />
+                   <label htmlFor="activeStatus" className="text-sm font-medium text-gray-300">Kích hoạt (Cho phép hiển thị/bán)</label>
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-4 border-t">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
-                  <Button type="submit">Lưu lại</Button>
+                <div className="flex justify-end space-x-3 pt-4 border-t border-white/10 mt-6">
+                  <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="text-gray-400 hover:text-white hover:bg-white/10">Hủy</Button>
+                  <Button type="submit" className="bg-[#d4af37] text-black hover:bg-[#b5952f]">Lưu lại</Button>
                 </div>
               </form>
             </CardContent>

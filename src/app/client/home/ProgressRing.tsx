@@ -8,15 +8,15 @@ export function ProgressRing({ remaining, total }: { remaining: number; total: n
   const percentage = Math.round((remaining / total) * 100);
   
   // Decide color based on percentage remaining
-  let fill = '#10b981'; // green / teal
-  if (percentage <= 50 && percentage > 20) fill = '#f59e0b'; // amber/yellow
-  if (percentage <= 20) fill = '#ef4444'; // red
+  let fill = '#d4af37'; // gold primary
+  if (percentage <= 50 && percentage > 20) fill = '#e5c56c'; // lighter gold
+  if (percentage <= 20) fill = '#8c7442'; // dark gold
 
   const data = [
     {
       name: 'used',
       value: total,
-      fill: '#f3f4f6', // background gray
+      fill: '#2a2b2e', // dark background
     },
     {
       name: 'remaining',
@@ -46,8 +46,8 @@ export function ProgressRing({ remaining, total }: { remaining: number; total: n
         </RadialBarChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-gray-900">{used} <span className="text-xl text-gray-400 font-normal">/ {total}</span></span>
-        <span className="text-xs text-gray-500 font-medium tracking-wide mt-1 uppercase">ĐÃ DÙNG</span>
+        <span className="text-3xl font-bold text-zinc-100">{used} <span className="text-xl text-zinc-500 font-normal">/ {total}</span></span>
+        <span className="text-xs text-zinc-500 font-medium tracking-wide mt-1 uppercase">ĐÃ DÙNG</span>
       </div>
     </div>
   );

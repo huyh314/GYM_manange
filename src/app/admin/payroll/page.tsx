@@ -104,21 +104,21 @@ export default function PayrollPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-gray-900 flex items-center gap-2">
-            <DollarSign className="text-emerald-500" /> Tính Lương PT
+          <h1 className="text-2xl font-black tracking-tight text-white/90 font-serif flex items-center gap-2">
+            <DollarSign className="text-[#d4af37]" /> Tính Lương PT
           </h1>
-          <p className="text-sm text-gray-500 mt-1">Tổng kết lương theo tháng</p>
+          <p className="text-sm text-gray-400 mt-1">Tổng kết lương theo tháng</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-white border rounded-xl px-3 py-2 shadow-sm">
-            <Calendar size={16} className="text-gray-400" />
+          <div className="flex items-center gap-2 bg-[#121212] border border-white/10 rounded-xl px-3 py-2 shadow-sm text-white focus-within:border-[#d4af37] transition-colors">
+            <Calendar size={16} className="text-[#d4af37]" />
             <Input
               type="month"
               value={selectedMonth}
               onChange={e => setSelectedMonth(e.target.value)}
-              className="border-0 p-0 h-auto text-sm font-bold focus-visible:ring-0 w-36"
+              className="border-0 p-0 h-auto text-sm font-bold bg-transparent text-white focus-visible:ring-0 w-36 css-invert-calendar"
             />
           </div>
         </div>
@@ -126,56 +126,56 @@ export default function PayrollPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-emerald-50 to-green-50">
+        <Card className="border border-emerald-900/50 shadow-[0_0_15px_rgba(16,185,129,0.1)] bg-gradient-to-br from-[#1a1c1e] to-emerald-900/10">
           <CardContent className="p-4">
-            <p className="text-xs font-bold text-emerald-600 uppercase">Tổng lương</p>
-            <p className="text-xl font-black text-emerald-700 mt-1">{formatVND(totalPayroll)}</p>
+            <p className="text-xs font-bold text-emerald-400 uppercase">Tổng lương</p>
+            <p className="text-xl font-black text-emerald-500 mt-1">{formatVND(totalPayroll)}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
+        <Card className="border border-blue-900/50 shadow-[0_0_15px_rgba(59,130,246,0.1)] bg-gradient-to-br from-[#1a1c1e] to-blue-900/10">
           <CardContent className="p-4">
-            <p className="text-xs font-bold text-blue-600 uppercase">Tổng ca</p>
-            <p className="text-xl font-black text-blue-700 mt-1">{totalSessions}</p>
+            <p className="text-xs font-bold text-blue-400 uppercase">Tổng ca</p>
+            <p className="text-xl font-black text-blue-500 mt-1">{totalSessions}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-violet-50 to-purple-50">
+        <Card className="border border-violet-900/50 shadow-[0_0_15px_rgba(139,92,246,0.1)] bg-gradient-to-br from-[#1a1c1e] to-violet-900/10">
           <CardContent className="p-4">
-            <p className="text-xs font-bold text-violet-600 uppercase">Số PT</p>
-            <p className="text-xl font-black text-violet-700 mt-1">{payroll.length}</p>
+            <p className="text-xs font-bold text-violet-400 uppercase">Số PT</p>
+            <p className="text-xl font-black text-violet-500 mt-1">{payroll.length}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-orange-50">
+        <Card className="border border-[#d4af37]/30 shadow-[0_0_15px_rgba(212,175,55,0.1)] bg-gradient-to-br from-[#1a1c1e] to-[#d4af37]/10">
           <CardContent className="p-4">
-            <p className="text-xs font-bold text-amber-600 uppercase">Đã trả</p>
-            <p className="text-xl font-black text-amber-700 mt-1">{paidCount}/{payroll.length}</p>
+            <p className="text-xs font-bold text-[#d4af37] uppercase">Đã trả</p>
+            <p className="text-xl font-black text-[#d4af37] mt-1">{paidCount}/{payroll.length}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Payroll Table */}
       {loading ? (
-        <Card className="border-0 shadow-sm">
+        <Card className="border-white/5 bg-[#1a1c1e] shadow-sm mt-4">
           <CardContent className="p-8">
             <div className="animate-pulse space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-1/3" />
-              <div className="h-10 bg-gray-200 rounded" />
-              <div className="h-10 bg-gray-200 rounded" />
+              <div className="h-4 bg-white/5 rounded w-1/3" />
+              <div className="h-10 bg-white/5 rounded" />
+              <div className="h-10 bg-white/5 rounded" />
             </div>
           </CardContent>
         </Card>
       ) : payroll.length === 0 ? (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-12 text-center text-gray-400">
+        <Card className="border-white/5 bg-[#1a1c1e] shadow-sm mt-4">
+          <CardContent className="p-12 text-center text-gray-500">
             <DollarSign className="w-10 h-10 mx-auto mb-3 opacity-20" />
             <p className="font-bold">Không có dữ liệu</p>
-            <p className="text-sm mt-1">Chưa có PT nào hoặc tháng này chưa có ca dạy</p>
+            <p className="text-sm mt-1 text-gray-400">Chưa có PT nào hoặc tháng này chưa có ca dạy</p>
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-0 shadow-sm rounded-2xl overflow-hidden">
+        <Card className="border-white/5 bg-[#1a1c1e] text-white shadow-sm rounded-2xl overflow-hidden mt-4">
           <CardContent className="p-0">
             {/* Table Header */}
-            <div className="hidden sm:grid grid-cols-12 gap-2 px-6 py-3 bg-gray-50 border-b text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <div className="hidden sm:grid grid-cols-12 gap-2 px-6 py-3 bg-[#121212] border-b border-white/10 text-xs font-bold text-gray-400 uppercase tracking-wider">
               <div className="col-span-3">PT</div>
               <div className="col-span-2 text-center">Đơn giá/ca</div>
               <div className="col-span-2 text-center">Ca đã dạy</div>
@@ -185,44 +185,44 @@ export default function PayrollPage() {
 
             {/* Table Body */}
             {payroll.map((entry) => (
-              <div key={entry.pt_id} className="border-b last:border-0">
+              <div key={entry.pt_id} className="border-b border-white/5 last:border-0">
                 {/* Main Row */}
                 <div
-                  className={`grid grid-cols-1 sm:grid-cols-12 gap-2 px-6 py-4 items-center cursor-pointer hover:bg-gray-50/60 transition-colors ${
-                    expandedPT === entry.pt_id ? 'bg-indigo-50/30' : ''
+                  className={`grid grid-cols-1 sm:grid-cols-12 gap-2 px-6 py-4 items-center cursor-pointer hover:bg-white/5 transition-colors ${
+                    expandedPT === entry.pt_id ? 'bg-[#d4af37]/5' : ''
                   }`}
                   onClick={() => setExpandedPT(expandedPT === entry.pt_id ? null : entry.pt_id)}
                 >
                   <div className="sm:col-span-3 flex items-center gap-3">
-                    <button className="p-0.5 text-gray-400">
+                    <button className="p-0.5 text-gray-500 hover:text-white">
                       {expandedPT === entry.pt_id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                     </button>
-                    <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-black text-sm">
+                    <div className="w-9 h-9 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/50 flex items-center justify-center text-[#d4af37] font-black text-sm">
                       {entry.pt_name.charAt(0)}
                     </div>
-                    <span className="font-bold text-gray-900">{entry.pt_name}</span>
+                    <span className="font-bold text-white/90">{entry.pt_name}</span>
                   </div>
-                  <div className="sm:col-span-2 text-center font-bold text-gray-600 text-sm">
-                    <span className="sm:hidden text-xs text-gray-400 mr-2">Đơn giá:</span>
+                  <div className="sm:col-span-2 text-center font-bold text-gray-300 text-sm">
+                    <span className="sm:hidden text-xs text-gray-500 mr-2">Đơn giá:</span>
                     {formatVND(entry.rate_per_session)}
                   </div>
-                  <div className="sm:col-span-2 text-center">
-                    <span className="sm:hidden text-xs text-gray-400 mr-2">Ca dạy:</span>
-                    <span className="font-black text-blue-600 text-lg">{entry.sessions_count}</span>
+                  <div className="sm:col-span-2 text-center flex items-center justify-center gap-2">
+                    <span className="sm:hidden text-xs text-gray-500">Ca dạy:</span>
+                    <span className="font-black text-blue-400 text-lg">{entry.sessions_count}</span>
                   </div>
-                  <div className="sm:col-span-2 text-right">
-                    <span className="sm:hidden text-xs text-gray-400 mr-2">Tổng:</span>
-                    <span className="font-black text-emerald-600">{formatVND(entry.total_amount)}</span>
+                  <div className="sm:col-span-2 text-right flex items-center justify-end gap-2">
+                    <span className="sm:hidden text-xs text-gray-500">Tổng:</span>
+                    <span className="font-black text-emerald-400 text-base">{formatVND(entry.total_amount)}</span>
                   </div>
-                  <div className="sm:col-span-3 flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
+                  <div className="sm:col-span-3 flex text-right items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
                     {entry.status === 'paid' ? (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                         <CheckCircle size={12} /> Đã trả
                       </span>
                     ) : (
                       <Button
                         size="sm"
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-8 rounded-full"
+                        className="bg-[#d4af37] hover:bg-[#b5952f] text-black font-bold text-xs h-8 rounded-full"
                         onClick={() => handleMarkPaid(entry)}
                       >
                         <CheckCircle size={14} className="mr-1" /> Đánh dấu đã trả
@@ -231,7 +231,7 @@ export default function PayrollPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-xs h-8 border-rose-200 text-rose-600 hover:bg-rose-50 rounded-full"
+                      className="text-xs h-8 border-rose-500/30 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-full bg-transparent"
                       onClick={() => handleExportPDF(entry)}
                     >
                       <FileText size={14} className="mr-1" /> PDF
@@ -241,21 +241,21 @@ export default function PayrollPage() {
 
                 {/* Expanded Details */}
                 {expandedPT === entry.pt_id && (
-                  <div className="px-6 pb-4 animate-in slide-in-from-top-2 duration-200">
-                    <div className="bg-gray-50 rounded-xl border p-4">
-                      <h4 className="text-xs font-bold text-gray-500 uppercase mb-3">Chi tiết buổi dạy trong tháng</h4>
+                  <div className="px-6 pb-4 animate-in slide-in-from-top-2 duration-200 mt-2">
+                    <div className="bg-[#121212] rounded-xl border border-white/10 p-4 shadow-inner">
+                      <h4 className="text-xs font-bold text-[#d4af37] uppercase mb-3 border-b border-white/10 pb-2">Chi tiết buổi dạy trong tháng</h4>
                       {entry.sessions.length === 0 ? (
-                        <p className="text-sm text-gray-400 text-center py-4">Không có ca dạy</p>
+                        <p className="text-sm text-gray-500 text-center py-4">Không có ca dạy</p>
                       ) : (
-                        <div className="space-y-1.5">
+                        <div className="space-y-1.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                           {entry.sessions.map((s, idx) => (
-                            <div key={s.id} className="flex items-center justify-between text-sm py-1.5 px-2 rounded hover:bg-white">
+                            <div key={s.id} className="flex flex-col sm:flex-row sm:items-center justify-between text-sm py-2 px-3 rounded hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors gap-2">
                               <div className="flex items-center gap-3">
-                                <span className="text-xs text-gray-400 font-bold w-6">{idx + 1}.</span>
-                                <span className="font-medium text-gray-800">{s.client_name}</span>
+                                <span className="text-xs text-[#d4af37] font-bold w-6">{idx + 1}.</span>
+                                <span className="font-medium text-gray-300">{s.client_name}</span>
                               </div>
                               <div className="flex items-center gap-2 text-gray-500 text-xs">
-                                <Calendar size={12} />
+                                <Calendar size={12} className="text-[#d4af37]" />
                                 {s.checked_in_at ? format(new Date(s.checked_in_at), 'dd/MM/yyyy HH:mm') : 'N/A'}
                               </div>
                             </div>

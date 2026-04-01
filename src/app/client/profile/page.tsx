@@ -109,18 +109,18 @@ export default function ClientProfilePage() {
     : null;
 
   const getBmiLabel = (bmiVal: number) => {
-    if (bmiVal < 18.5) return { label: 'Thiếu cân', color: 'text-blue-600 bg-blue-50' };
-    if (bmiVal < 25) return { label: 'Bình thường', color: 'text-emerald-600 bg-emerald-50' };
-    if (bmiVal < 30) return { label: 'Thừa cân', color: 'text-amber-600 bg-amber-50' };
-    return { label: 'Béo phì', color: 'text-red-600 bg-red-50' };
+    if (bmiVal < 18.5) return { label: 'Thiếu cân', color: 'text-sky-400 bg-sky-500/10 border-sky-500/20' };
+    if (bmiVal < 25) return { label: 'Bình thường', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' };
+    if (bmiVal < 30) return { label: 'Thừa cân', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' };
+    return { label: 'Béo phì', color: 'text-red-400 bg-red-500/10 border-red-500/20' };
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full pt-10">
         <div className="animate-pulse space-y-4 w-full px-4">
-          <div className="h-24 bg-gray-200 rounded-xl w-full"></div>
-          <div className="h-64 bg-gray-200 rounded-xl w-full"></div>
+          <div className="h-24 bg-[#2a2b2e] rounded-xl w-full"></div>
+          <div className="h-64 bg-[#2a2b2e] rounded-xl w-full"></div>
         </div>
       </div>
     );
@@ -145,17 +145,17 @@ export default function ClientProfilePage() {
       </div>
 
       {/* Header Profile Info */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border flex items-center space-x-5 mt-4">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-inner relative overflow-hidden shrink-0">
+      <div className="bg-[#1e1e1e] rounded-3xl p-6 shadow-sm border border-[#2a2b2e] flex items-center space-x-5 mt-4">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#8c7442] flex items-center justify-center shadow-inner relative overflow-hidden shrink-0">
           {profile?.avatar_url ? (
             <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
-            <span className="text-2xl font-black text-white">{profile?.name?.charAt(0) || 'U'}</span>
+            <span className="text-2xl font-black text-zinc-900">{profile?.name?.charAt(0) || 'U'}</span>
           )}
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-black text-gray-900 leading-tight">{profile?.name}</h1>
-          <div className="flex items-center text-sm text-gray-500 mt-1 space-x-1">
+          <h1 className="text-xl font-black text-zinc-100 leading-tight">{profile?.name}</h1>
+          <div className="flex items-center text-sm text-zinc-500 mt-1 space-x-1">
             <Phone size={14} />
             <span>{profile?.phone}</span>
           </div>
@@ -166,51 +166,43 @@ export default function ClientProfilePage() {
       {(bmi || profile?.target_weight) && (
         <div className="grid grid-cols-2 gap-3">
           {bmi && (
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Chỉ số BMI</p>
-                <p className="text-3xl font-black text-gray-800">{bmi}</p>
-                <span className={`inline-block mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${getBmiLabel(parseFloat(bmi)).color}`}>
-                  {getBmiLabel(parseFloat(bmi)).label}
-                </span>
-              </CardContent>
-            </Card>
+            <div className="bg-[#1e1e1e] rounded-2xl border border-[#2a2b2e] p-4 text-center">
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Chỉ số BMI</p>
+              <p className="text-3xl font-black text-zinc-100">{bmi}</p>
+              <span className={`inline-block mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border ${getBmiLabel(parseFloat(bmi)).color}`}>
+                {getBmiLabel(parseFloat(bmi)).label}
+              </span>
+            </div>
           )}
           {profile?.target_weight && (
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Mục tiêu</p>
-                <p className="text-3xl font-black text-indigo-600 flex items-center justify-center gap-1">
-                  <Target size={20} className="text-indigo-400" />
-                  {profile.target_weight}
-                </p>
-                <span className="text-[10px] font-bold text-gray-400 uppercase">kg</span>
-              </CardContent>
-            </Card>
+            <div className="bg-[#1e1e1e] rounded-2xl border border-[#2a2b2e] p-4 text-center">
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Mục tiêu</p>
+              <p className="text-3xl font-black text-[#d4af37] flex items-center justify-center gap-1">
+                <Target size={20} className="text-[#d4af37]/60" />
+                {profile.target_weight}
+              </p>
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">kg</span>
+            </div>
           )}
         </div>
       )}
 
       {/* PT Notes */}
       {profile?.notes && (
-        <Card className="border-indigo-100 bg-indigo-50/50 shadow-none">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center space-x-2 text-indigo-900 border-b border-indigo-100/50 pb-2">
-              <FileText size={16} className="text-indigo-500" />
-              <span className="uppercase tracking-wider font-bold">Ghi chú của HLV</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-700 text-sm italic font-medium">"{profile.notes}"</p>
-          </CardContent>
-        </Card>
+        <div className="bg-[#d4af37]/5 rounded-2xl border border-[#d4af37]/20 p-4">
+          <div className="flex items-center space-x-2 text-sm text-[#d4af37] border-b border-[#d4af37]/10 pb-2 mb-3">
+            <FileText size={16} className="text-[#d4af37]/70" />
+            <span className="uppercase tracking-wider font-bold text-xs">Ghi chú của HLV</span>
+          </div>
+          <p className="text-zinc-300 text-sm italic font-medium">"{profile.notes}"</p>
+        </div>
       )}
 
       {/* Weight Tracking */}
       <div>
         <div className="flex items-center space-x-2 mb-3 px-1">
-          <Activity size={18} className="text-pink-500" />
-          <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Theo dõi chỉ số cơ thể</h2>
+          <Activity size={18} className="text-[#d4af37]" />
+          <h2 className="text-sm font-bold text-zinc-300 uppercase tracking-wider">Theo dõi chỉ số cơ thể</h2>
         </div>
         
         <WeightChart data={weights} />
@@ -219,88 +211,82 @@ export default function ClientProfilePage() {
         {weights.length > 0 && (weights[0].body_fat_pct || weights[0].muscle_mass_pct) && (
           <div className="grid grid-cols-2 gap-3 mt-3">
             {weights[0].body_fat_pct && (
-              <Card className="bg-amber-50 border-amber-100 shadow-none">
-                <CardContent className="p-3 text-center">
-                  <p className="text-[10px] font-bold text-amber-600 uppercase">Tỉ lệ mỡ</p>
-                  <p className="text-2xl font-black text-amber-700">{weights[0].body_fat_pct}<span className="text-sm">%</span></p>
-                </CardContent>
-              </Card>
+              <div className="bg-amber-500/10 rounded-2xl border border-amber-500/20 p-3 text-center">
+                <p className="text-[10px] font-bold text-amber-400 uppercase">Tỉ lệ mỡ</p>
+                <p className="text-2xl font-black text-amber-300">{weights[0].body_fat_pct}<span className="text-sm">%</span></p>
+              </div>
             )}
             {weights[0].muscle_mass_pct && (
-              <Card className="bg-blue-50 border-blue-100 shadow-none">
-                <CardContent className="p-3 text-center">
-                  <p className="text-[10px] font-bold text-blue-600 uppercase">Tỉ lệ cơ</p>
-                  <p className="text-2xl font-black text-blue-700">{weights[0].muscle_mass_pct}<span className="text-sm">%</span></p>
-                </CardContent>
-              </Card>
+              <div className="bg-sky-500/10 rounded-2xl border border-sky-500/20 p-3 text-center">
+                <p className="text-[10px] font-bold text-sky-400 uppercase">Tỉ lệ cơ</p>
+                <p className="text-2xl font-black text-sky-300">{weights[0].muscle_mass_pct}<span className="text-sm">%</span></p>
+              </div>
             )}
           </div>
         )}
 
-        <Card className="mt-4 border-dashed shadow-none bg-gray-50 hover:bg-white transition-colors">
-          <CardContent className="pt-4">
-            <form onSubmit={handleAddWeight} className="space-y-3">
-              <div className="flex space-x-2 items-end">
-                <div className="space-y-1.5 flex-1">
-                  <Label htmlFor="weight" className="text-xs text-gray-500 font-bold">Cân nặng (kg) *</Label>
-                  <Input 
-                    id="weight"
-                    type="number"
-                    step="0.1"
-                    inputMode="decimal"
-                    placeholder="VD: 65.5"
-                    required
-                    value={newWeight}
-                    onChange={e => setNewWeight(e.target.value)}
-                    className="bg-white"
-                  />
-                </div>
-                <div className="space-y-1.5 w-28 shrink-0">
-                  <Label htmlFor="date" className="text-xs text-gray-500 font-bold">Ngày</Label>
-                  <Input 
-                    id="date"
-                    type="date"
-                    required
-                    value={newDate}
-                    onChange={e => setNewDate(e.target.value)}
-                    className="bg-white"
-                  />
-                </div>
+        <div className="mt-4 bg-[#1e1e1e] rounded-2xl border border-dashed border-[#2a2b2e] hover:border-[#d4af37]/30 transition-colors p-4">
+          <form onSubmit={handleAddWeight} className="space-y-3">
+            <div className="flex space-x-2 items-end">
+              <div className="space-y-1.5 flex-1">
+                <Label htmlFor="weight" className="text-xs text-zinc-500 font-bold">Cân nặng (kg) *</Label>
+                <Input 
+                  id="weight"
+                  type="number"
+                  step="0.1"
+                  inputMode="decimal"
+                  placeholder="VD: 65.5"
+                  required
+                  value={newWeight}
+                  onChange={e => setNewWeight(e.target.value)}
+                  className="bg-[#121212] border-[#2a2b2e] text-zinc-100 placeholder:text-zinc-600 focus:border-[#d4af37]"
+                />
               </div>
-              <div className="flex space-x-2 items-end">
-                <div className="space-y-1.5 flex-1">
-                  <Label htmlFor="bodyFat" className="text-xs text-gray-500 font-bold">% Mỡ</Label>
-                  <Input 
-                    id="bodyFat"
-                    type="number"
-                    step="0.1"
-                    inputMode="decimal"
-                    placeholder="VD: 18.5"
-                    value={newBodyFat}
-                    onChange={e => setNewBodyFat(e.target.value)}
-                    className="bg-white"
-                  />
-                </div>
-                <div className="space-y-1.5 flex-1">
-                  <Label htmlFor="muscleMass" className="text-xs text-gray-500 font-bold">% Cơ</Label>
-                  <Input 
-                    id="muscleMass"
-                    type="number"
-                    step="0.1"
-                    inputMode="decimal"
-                    placeholder="VD: 35.2"
-                    value={newMuscleMass}
-                    onChange={e => setNewMuscleMass(e.target.value)}
-                    className="bg-white"
-                  />
-                </div>
-                <Button type="submit" size="icon" disabled={isSubmitting || !newWeight} className="shrink-0 mb-0.5 bg-green-500 hover:bg-green-600 text-white">
-                  <Save size={18} />
-                </Button>
+              <div className="space-y-1.5 w-28 shrink-0">
+                <Label htmlFor="date" className="text-xs text-zinc-500 font-bold">Ngày</Label>
+                <Input 
+                  id="date"
+                  type="date"
+                  required
+                  value={newDate}
+                  onChange={e => setNewDate(e.target.value)}
+                  className="bg-[#121212] border-[#2a2b2e] text-zinc-100 focus:border-[#d4af37]"
+                />
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+            <div className="flex space-x-2 items-end">
+              <div className="space-y-1.5 flex-1">
+                <Label htmlFor="bodyFat" className="text-xs text-zinc-500 font-bold">% Mỡ</Label>
+                <Input 
+                  id="bodyFat"
+                  type="number"
+                  step="0.1"
+                  inputMode="decimal"
+                  placeholder="VD: 18.5"
+                  value={newBodyFat}
+                  onChange={e => setNewBodyFat(e.target.value)}
+                  className="bg-[#121212] border-[#2a2b2e] text-zinc-100 placeholder:text-zinc-600 focus:border-[#d4af37]"
+                />
+              </div>
+              <div className="space-y-1.5 flex-1">
+                <Label htmlFor="muscleMass" className="text-xs text-zinc-500 font-bold">% Cơ</Label>
+                <Input 
+                  id="muscleMass"
+                  type="number"
+                  step="0.1"
+                  inputMode="decimal"
+                  placeholder="VD: 35.2"
+                  value={newMuscleMass}
+                  onChange={e => setNewMuscleMass(e.target.value)}
+                  className="bg-[#121212] border-[#2a2b2e] text-zinc-100 placeholder:text-zinc-600 focus:border-[#d4af37]"
+                />
+              </div>
+              <Button type="submit" size="icon" disabled={isSubmitting || !newWeight} className="shrink-0 mb-0.5 bg-[#d4af37] hover:bg-[#e5c56c] text-zinc-900">
+                <Save size={18} />
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
 
     </div>

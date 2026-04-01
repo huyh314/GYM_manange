@@ -108,12 +108,12 @@ export default function UsersManagement() {
 
   const RoleBadge = ({ role }: { role: string }) => {
     const colors: any = {
-      admin: 'bg-red-50 text-red-700 border-red-200',
-      pt: 'bg-blue-50 text-blue-700 border-blue-200',
-      client: 'bg-green-50 text-green-700 border-green-200'
+      admin: 'bg-red-900/30 text-red-400 border-red-800/50',
+      pt: 'bg-blue-900/30 text-blue-400 border-blue-800/50',
+      client: 'bg-[#d4af37]/10 text-[#d4af37] border-[#d4af37]/30'
     };
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${colors[role] || 'bg-gray-100'}`}>
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${colors[role] || 'bg-white/10 text-gray-300'}`}>
         {role.toUpperCase()}
       </span>
     );
@@ -121,19 +121,19 @@ export default function UsersManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center border-b pb-4">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Quản lý Nhân sự & Học viên</h1>
-        <Button onClick={() => handleOpenDialog()} className="bg-primary">
+      <div className="flex justify-between items-center border-b border-white/10 pb-4">
+        <h1 className="text-2xl font-bold tracking-tight text-white/90 font-serif">Quản lý Nhân sự & Học viên</h1>
+        <Button onClick={() => handleOpenDialog()} className="bg-[#d4af37] text-black hover:bg-[#b5952f] shadow-lg shadow-black/20">
           <Plus className="mr-2 h-4 w-4" />
           Thêm người mới
         </Button>
       </div>
 
-      <Card>
+      <Card className="bg-[#1a1c1e] border-white/5 shadow-2xl">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
+            <table className="w-full text-sm text-left text-gray-300">
+              <thead className="text-xs text-gray-400 uppercase bg-white/5 border-b border-white/10">
                 <tr>
                   <th className="px-6 py-4 font-semibold">Tên người dùng</th>
                   <th className="px-6 py-4 font-semibold">Số điện thoại</th>
@@ -153,21 +153,21 @@ export default function UsersManagement() {
                   </tr>
                 ) : (
                   users.map(user => (
-                    <tr key={user.id} className="border-b last:border-0 hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-2">
+                    <tr key={user.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                      <td className="px-6 py-4 font-medium text-white/90 flex items-center gap-2">
                         <RoleIcon role={user.role} />
                         {user.name}
                       </td>
-                      <td className="px-6 py-4 text-gray-600">{user.phone}</td>
+                      <td className="px-6 py-4 text-gray-400">{user.phone}</td>
                       <td className="px-6 py-4">
                         <RoleBadge role={user.role} />
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span className={cn(
                           "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
-                          user.tier === 'vip' ? "bg-yellow-100 text-yellow-700" : 
-                          user.tier === 'premium' ? "bg-gray-100 text-gray-700" : 
-                          "bg-blue-50 text-blue-600"
+                          user.tier === 'vip' ? "bg-yellow-900/30 text-yellow-400 border border-yellow-800/50" : 
+                          user.tier === 'premium' ? "bg-gray-800 text-gray-300 border border-gray-600/50" : 
+                          "bg-blue-900/30 text-blue-400 border border-blue-800/50"
                         )}>
                           {user.tier || 'normal'}
                         </span>
@@ -183,12 +183,12 @@ export default function UsersManagement() {
                             setViewingCardUser(user);
                             setViewCardTier('normal');
                           }} 
-                          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                          className="text-[#d4af37] hover:text-[#b5952f] hover:bg-[#d4af37]/10"
                         >
                           <QrCode className="w-4 h-4 mr-1" />
                           Xem thẻ
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(user)} className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(user)} className="text-gray-300 hover:text-white hover:bg-white/10">
                           Sửa
                         </Button>
                       </td>
@@ -204,29 +204,29 @@ export default function UsersManagement() {
 
       {/* Simple Dialog wrapper */}
       {isDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md bg-white shadow-xl animate-in zoom-in-95">
-            <CardHeader className="pb-4 border-b">
-              <CardTitle>{editingUserId ? 'Cập nhật người dùng' : 'Thêm người dùng mới'}</CardTitle>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <Card className="w-full max-w-md bg-[#1a1c1e] text-white border-white/10 shadow-2xl animate-in zoom-in-95">
+            <CardHeader className="pb-4 border-b border-white/10">
+              <CardTitle className="font-serif text-[#d4af37]">{editingUserId ? 'Cập nhật người dùng' : 'Thêm người dùng mới'}</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Họ và tên</label>
-                  <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="VD: Nguyễn Văn A" />
+                  <label className="text-sm font-medium text-gray-300">Họ và tên</label>
+                  <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="VD: Nguyễn Văn A" className="bg-[#121212] border-white/10 focus:border-[#d4af37] text-white" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Số điện thoại (Dùng làm Tên đăng nhập)</label>
-                  <Input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="VD: 0901234567" />
+                  <label className="text-sm font-medium text-gray-300">Số điện thoại (Dùng làm Tên đăng nhập)</label>
+                  <Input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="VD: 0901234567" className="bg-[#121212] border-white/10 focus:border-[#d4af37] text-white" />
                 </div>
                 <div className="space-y-2">
-                   <label className="text-sm font-medium">Mật khẩu (Mặc định: 123456)</label>
-                   <Input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="Bỏ trống để dùng mặc định" />
+                   <label className="text-sm font-medium text-gray-300">Mật khẩu (Mặc định: 123456)</label>
+                   <Input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="Bỏ trống để dùng mặc định" className="bg-[#121212] border-white/10 focus:border-[#d4af37] text-white" />
                 </div>
                 <div className="space-y-2">
-                   <label className="text-sm font-medium">Vai trò</label>
+                   <label className="text-sm font-medium text-gray-300">Vai trò</label>
                    <select 
-                     className="w-full flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+                     className="w-full flex h-10 rounded-md border border-white/10 bg-[#121212] px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus:border-[#d4af37] text-white"
                      value={formData.role}
                      onChange={e => setFormData({...formData, role: e.target.value})}
                    >
@@ -237,19 +237,20 @@ export default function UsersManagement() {
                 </div>
                 {formData.role === 'pt' && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Đơn giá mỗi ca dạy (VNĐ)</label>
+                    <label className="text-sm font-medium text-[#d4af37]">Đơn giá mỗi ca dạy (VNĐ)</label>
                     <Input 
                       type="number" 
                       value={formData.rate_per_session} 
                       onChange={e => setFormData({...formData, rate_per_session: Number(e.target.value)})} 
                       placeholder="VD: 150000" 
+                      className="bg-[#121212] border-[#d4af37]/30 focus:border-[#d4af37] text-white"
                     />
                   </div>
                 )}
                 <div className="space-y-2">
-                   <label className="text-sm font-medium text-indigo-600">Hạng thẻ hội viên</label>
+                   <label className="text-sm font-medium text-[#d4af37]">Hạng thẻ hội viên</label>
                    <select 
-                     className="w-full flex h-10 rounded-md border border-indigo-200 bg-background px-3 py-2 text-sm ring-offset-background"
+                     className="w-full flex h-10 rounded-md border border-[#d4af37]/30 bg-[#121212] px-3 py-2 text-sm focus:border-[#d4af37] text-white"
                      value={formData.tier}
                      onChange={e => setFormData({...formData, tier: e.target.value as MembershipTier})}
                    >
@@ -258,9 +259,9 @@ export default function UsersManagement() {
                      <option value="premium">Premium (Thượng lưu)</option>
                    </select>
                 </div>
-                <div className="flex justify-end space-x-3 pt-4 border-t mt-6">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
-                  <Button type="submit">Lưu lại</Button>
+                <div className="flex justify-end space-x-3 pt-4 border-t border-white/10 mt-6">
+                  <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="text-gray-400 hover:text-white hover:bg-white/10">Hủy</Button>
+                  <Button type="submit" className="bg-[#d4af37] text-black hover:bg-[#b5952f]">Lưu lại</Button>
                 </div>
               </form>
             </CardContent>
