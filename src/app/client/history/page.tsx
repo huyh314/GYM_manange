@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import useSWR from 'swr';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { supabase } from '@/lib/supabase';
@@ -9,34 +10,33 @@ import { Button } from '@/components/ui/button';
 import { ClipboardList, Clock, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { SessionDetail } from './SessionDetail';
 
+const fetchHistory = async () => {
+  const meRes = await fetch('/api/auth/me');
+  if (!meRes.ok) throw new Error('Not logged in');
+  const me = await meRes.json();
+  const userId = me.id;
+
+  const { data, error } = await supabase
+    .from('sessions')
+    .select(`
+      id, scheduled_at, checked_in_at, status, logbook, notes,
+      pt:pt_id(name)
+    `)
+    .eq('client_id', userId)
+    .eq('status', 'done')
+    .order('checked_in_at', { ascending: false })
+    .limit(20);
+
+  if (error) throw error;
+  return data || [];
+};
+
 export default function ClientHistoryPage() {
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: sessions = [], isLoading: loading } = useSWR('client-history', fetchHistory, {
+    revalidateOnFocus: true
+  });
   const [selectedSession, setSelectedSession] = useState<any>(null);
   
-  useEffect(() => {
-    async function fetchHistory() {
-      const meRes = await fetch('/api/auth/me');
-      if (!meRes.ok) return;
-      const me = await meRes.json();
-      const userId = me.id;
-
-      const { data, error } = await supabase
-        .from('sessions')
-        .select(`
-          id, scheduled_at, checked_in_at, status, logbook, notes,
-          pt:pt_id(name)
-        `)
-        .eq('client_id', userId)
-        .eq('status', 'done')
-        .order('checked_in_at', { ascending: false })
-        .limit(20);
-
-      if (data) setSessions(data);
-      setLoading(false);
-    }
-    fetchHistory();
-  }, []);
 
   return (
     <div className="space-y-4 animate-in slide-in-from-right-4 fade-in duration-500 pb-10">
@@ -61,7 +61,7 @@ export default function ClientHistoryPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {sessions.map((session) => (
+          {sessions.map((session: any) => (
             <div 
               key={session.id} 
               className="bg-[#1e1e1e] border border-[#2a2b2e] hover:border-[#d4af37]/30 transition-all cursor-pointer rounded-2xl overflow-hidden group"

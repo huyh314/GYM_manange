@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import useSWR from 'swr';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,10 +16,45 @@ import { WebAuthnRegister } from '@/components/WebAuthnRegister';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
+const fetchProfileData = async () => {
+  const meRes = await fetch('/api/auth/me');
+  if (!meRes.ok) throw new Error("Unauthorized");
+  
+  const me = await meRes.json();
+  const userId = me.id;
+
+  const { data: userProfile, error: profileError } = await supabase
+    .from('users')
+    .select('id, name, phone, notes, avatar_url, height_cm, target_weight, role, tier')
+    .eq('id', userId)
+    .single();
+    
+  if (profileError) throw profileError;
+
+  const ninetyDaysAgo = new Date();
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+  
+  const { data: weightLogs, error: weightsError } = await supabase
+    .from('weight_logs')
+    .select('*')
+    .eq('client_id', userId)
+    .gte('recorded_at', ninetyDaysAgo.toISOString().split('T')[0])
+    .order('recorded_at', { ascending: false });
+
+  if (weightsError) throw weightsError;
+
+  return { profile: userProfile, weights: weightLogs || [] };
+};
+
 export default function ClientProfilePage() {
-  const [profile, setProfile] = useState<any>(null);
-  const [weights, setWeights] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { data, isLoading: loading, mutate } = useSWR('client-profile', fetchProfileData, {
+    onError: () => router.push('/login'),
+    revalidateOnFocus: true
+  });
+
+  const profile = data?.profile;
+  const weights = data?.weights || [];
   
   // Form state
   const [newWeight, setNewWeight] = useState('');
@@ -27,45 +63,6 @@ export default function ClientProfilePage() {
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const router = useRouter();
-
-  useEffect(() => {
-    async function loadData() {
-      // Use our custom auth endpoint instead of Supabase auth
-      const meRes = await fetch('/api/auth/me');
-      if (!meRes.ok) {
-        router.push('/login');
-        return;
-      }
-      const me = await meRes.json();
-      const userId = me.id;
-
-      // Fetch Profile
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('id, name, phone, notes, avatar_url, height_cm, target_weight, role, tier')
-        .eq('id', userId)
-        .single();
-        
-      if (userProfile) setProfile(userProfile);
-
-      // Fetch Weights (last 3 months approx ~ 90 days)
-      const ninetyDaysAgo = new Date();
-      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-      
-      const { data: weightLogs } = await supabase
-        .from('weight_logs')
-        .select('*')
-        .eq('client_id', userId)
-        .gte('recorded_at', ninetyDaysAgo.toISOString().split('T')[0])
-        .order('recorded_at', { ascending: false });
-
-      if (weightLogs) setWeights(weightLogs);
-      
-      setLoading(false);
-    }
-    loadData();
-  }, [router]);
 
   const handleAddWeight = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +87,10 @@ export default function ClientProfilePage() {
       if (error) throw error;
       
       if (data) {
-        setWeights(prev => [data, ...prev].sort((a,b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()));
+        mutate({ 
+          profile, 
+          weights: [data, ...weights].sort((a,b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()) 
+        }, false);
         setNewWeight('');
         setNewBodyFat('');
         setNewMuscleMass('');

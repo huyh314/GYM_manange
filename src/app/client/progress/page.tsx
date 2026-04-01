@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import useSWR from 'swr';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dumbbell, Award, TrendingUp, BarChart3, Flame, Target } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -16,23 +17,22 @@ const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: fa
 const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
 const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function ClientProgressPage() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, error, isLoading } = useSWR('/api/client/progress', fetcher, {
+    revalidateOnFocus: true,
+    revalidateIfStale: false
+  });
   const [selectedExercise, setSelectedExercise] = useState<string>('');
 
   useEffect(() => {
-    fetch('/api/client/progress')
-      .then(res => res.json())
-      .then(d => {
-        setData(d);
-        if (d.exerciseNames?.length > 0) {
-          setSelectedExercise(d.exerciseNames[0]);
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    if (data && data.exerciseNames?.length > 0 && !selectedExercise) {
+      setSelectedExercise(data.exerciseNames[0]);
+    }
+  }, [data, selectedExercise]);
+  
+  const loading = isLoading && !data;
 
   const strengthChartData = useMemo(() => {
     if (!data || !selectedExercise || !data.strengthData || !data.strengthData[selectedExercise]) return [];

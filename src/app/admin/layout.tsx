@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#121212] text-zinc-100 font-sans">
+    <div className="flex flex-col min-h-screen w-full overflow-x-hidden bg-[#121212] text-zinc-100 font-sans">
       {/* Desktop Header / Top Nav */}
       <header className="hidden md:flex items-center justify-between px-6 lg:px-10 h-20 bg-[#1a1c1e] border-b border-[#2a2b2e] sticky top-0 z-30 shadow-md">
         <div className="flex items-center gap-8 lg:gap-12 h-full">
@@ -86,15 +86,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             QN<span className="text-[#d4af37]">FITNESS</span>
           </span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <NotificationBell />
           <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center border border-[#d4af37]/40 overflow-hidden shrink-0">
              <img src="https://ui-avatars.com/api/?name=Admin&background=1a1c1e&color=d4af37&bold=true" alt="Admin Avatar" className="w-full h-full object-cover" />
           </div>
+          <LogoutButton iconOnly className="p-1.5 text-zinc-400 hover:text-rose-500 rounded-lg transition-all" />
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-10 bg-[#121212] min-h-[calc(100vh-80px)] pb-24 md:pb-6">
+      <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-10 bg-[#121212] min-h-[calc(100vh-64px)] pb-24 md:pb-6">
          {children}
       </main>
 
