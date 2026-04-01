@@ -2,15 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
 import { LogoutButton } from '@/components/LogoutButton';
 import NotificationBell from '@/components/NotificationBell';
 import { motion } from 'framer-motion';
 import { QNLogo } from '@/components/QNLogo';
+import { AdminBottomNav } from '@/components/admin/AdminBottomNav';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
   const navItems = [
@@ -22,39 +20,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Tính lương', href: '/admin/payroll' },
     { label: 'Báo cáo', href: '/admin/reports' },
   ];
-
-  // Mobile drawer content
-  const MobileNavContent = () => (
-    <div className="flex flex-col h-full bg-[#1a1c1e] text-zinc-100 border-r border-[#2a2b2e]">
-      <div className="p-6 border-b border-[#2a2b2e] flex items-center justify-between">
-        <h1 className="font-sans font-medium text-lg uppercase tracking-widest flex items-center gap-2">
-          <QNLogo className="w-8 h-8" color="gold" />
-          <span>QN<span className="text-[#d4af37]">FITNESS</span></span>
-        </h1>
-        <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-zinc-400 hover:text-white">
-          <X size={24} />
-        </button>
-      </div>
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setIsSidebarOpen(false)}
-              className={`block px-4 py-3 rounded-md transition-colors ${isActive ? 'bg-[#d4af37]/10 text-[#d4af37] font-bold' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'}`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="p-4 border-t border-[#2a2b2e] mt-auto">
-        <LogoutButton />
-      </div>
-    </div>
-  );
 
   return (
     <div className="flex flex-col min-h-screen bg-[#121212] text-zinc-100 font-sans">
@@ -117,29 +82,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <header className="md:hidden flex items-center justify-between px-4 h-16 bg-[#1a1c1e] border-b border-[#2a2b2e] sticky top-0 z-30 shadow-md">
         <div className="flex items-center gap-2">
           <QNLogo className="w-8 h-8" color="gold" />
-          <span className="text-lg font-bold text-zinc-100 tracking-widest uppercase">
+          <span className="text-xl font-serif text-zinc-100 tracking-widest uppercase">
             QN<span className="text-[#d4af37]">FITNESS</span>
           </span>
         </div>
         <div className="flex items-center gap-4">
           <NotificationBell />
-          <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-zinc-400 hover:text-[#d4af37]">
-            <Menu size={24} />
-          </button>
+          <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center border border-[#d4af37]/40 overflow-hidden shrink-0">
+             <img src="https://ui-avatars.com/api/?name=Admin&background=1a1c1e&color=d4af37&bold=true" alt="Admin Avatar" className="w-full h-full object-cover" />
+          </div>
         </div>
       </header>
 
-      {/* Mobile Drawer */}
-      <div className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
-        <div className={`absolute top-0 left-0 bottom-0 w-72 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-           <MobileNavContent />
-        </div>
-      </div>
-
-      <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-10 bg-[#121212] min-h-[calc(100vh-80px)]">
+      <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-10 bg-[#121212] min-h-[calc(100vh-80px)] pb-24 md:pb-6">
          {children}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <AdminBottomNav />
     </div>
   );
 }

@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, Loader2, Phone, Lock, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Phone, Lock, ShieldCheck, Fingerprint } from 'lucide-react';
 import { QNLogo } from '@/components/QNLogo';
+import { startAuthentication } from '@simplewebauthn/browser';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const [phone, setPhone] = useState('');
@@ -60,6 +62,70 @@ export default function LoginPage() {
       router.refresh();
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    if (!phone) {
+      setError('Vui lòng nhập số điện thoại trước khi đăng nhập bằng vân tay/khuôn mặt');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      // 1. Get Authentication Options
+      const optRes = await fetch('/api/auth/webauthn/login-options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
+      const optData = await optRes.json();
+
+      if (!optRes.ok) {
+        throw new Error(optData.error || 'Lỗi khi tạo yêu cầu đăng nhập');
+      }
+
+      // 2. Start WebAuthn Authentication
+      const authResp = await startAuthentication({ optionsJSON: optData });
+
+      // 3. Verify Authentication
+      const verifyRes = await fetch('/api/auth/webauthn/login-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(authResp),
+      });
+
+      const verifyData = await verifyRes.json();
+
+      if (!verifyRes.ok) {
+        throw new Error(verifyData.error || 'Xác minh thất bại');
+      }
+
+      if (verifyData.success) {
+        toast.success('Đăng nhập vân tay thành công!');
+        if (rememberMe) {
+          localStorage.setItem('qn-saved-phone', phone);
+        } else {
+          localStorage.removeItem('qn-saved-phone');
+        }
+
+        if (verifyData.role === 'admin') router.push('/admin/dashboard');
+        else if (verifyData.role === 'pt') router.push('/pt/today');
+        else if (verifyData.role === 'client') router.push('/client/home');
+        
+        router.refresh();
+      }
+    } catch (err: any) {
+      console.error('Biometric Login Error:', err);
+      if (err.name === 'NotAllowedError') {
+        setError('Bạn đã hủy quá trình quét sinh trắc học.');
+      } else {
+        setError(err.message || 'Thiết bị không hỗ trợ hoặc xác thực lỗi.');
+      }
     } finally {
       setLoading(false);
     }
@@ -201,6 +267,27 @@ export default function LoginPage() {
                   Đăng nhập
                 </span>
               )}
+            </Button>
+
+            {/* Biometric Button */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-white/10" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-[#121212] px-2 text-white/30 tracking-widest">Hoặc</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBiometricLogin}
+              disabled={loading}
+              className="w-full h-14 bg-white/[0.03] border-white/[0.1] text-white hover:bg-white/[0.08] hover:text-amber-400 rounded-2xl text-base transition-all duration-300 backdrop-blur-md"
+            >
+              <Fingerprint size={20} className="mr-2 text-amber-500/80" />
+              Đăng nhập sinh trắc học
             </Button>
           </form>
 

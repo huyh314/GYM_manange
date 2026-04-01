@@ -11,6 +11,7 @@ import { Plus, UserCog, User, ShieldCheck, QrCode, Phone, FileText, Activity, Sa
 import { format } from 'date-fns';
 import { WeightChart } from './WeightChart';
 import { DigitalMemberCard, MembershipTier } from '@/components/DigitalMemberCard';
+import { WebAuthnRegister } from '@/components/WebAuthnRegister';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -197,6 +198,9 @@ export default function ClientProfilePage() {
           <p className="text-zinc-300 text-sm italic font-medium">"{profile.notes}"</p>
         </div>
       )}
+
+      {/* WebAuthn Settings */}
+      <WebAuthnRegister />
 
       {/* Weight Tracking */}
       <div>
