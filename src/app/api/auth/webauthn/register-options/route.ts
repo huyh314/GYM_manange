@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       .select('id, transports')
       .eq('user_id', user.id);
 
-    const excludeCredentials = (existingCreds || []).map((cred) => ({
+    const excludeCredentials = (existingCreds || []).map((cred: any) => ({
       id: cred.id,
       type: 'public-key' as const,
       transports: cred.transports ? (cred.transports as unknown as any[]) : undefined,

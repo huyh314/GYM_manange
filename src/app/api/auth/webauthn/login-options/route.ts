@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Tài khoản này chưa cài đặt vân tay/khuôn mặt' }, { status: 400 });
     }
 
-    const allowCredentials = userCredentials.map((cred) => ({
+    const allowCredentials = (userCredentials || []).map((cred: any) => ({
       id: cred.id,
       type: 'public-key' as const,
       transports: cred.transports ? (cred.transports as unknown as any[]) : undefined,
